@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <iostream>
 #include <metis.h>
+#include <set>
 #include <stdlib.h>
 #include <string>
 #include <time.h>
@@ -159,25 +160,20 @@ PartitionScheme cut_graph(Graph& graph, idx_t n_partitions) {
     }
 
     auto x_edges = std::vector<idx_t>();
-    for (auto i = 0; i <= n_edges; i += n_vertice - 1) {
-        x_edges.push_back(i);
-    }
-
     auto edges = std::vector<idx_t>();
     auto edges_weight = std::vector<idx_t>();
-    for (auto i = 0; i < n_vertice; i++) {
-        for (auto j = 0; j < n_vertice; j++) {
-            if (i == j) {
-                continue;
-            }
 
-            edges.push_back(j);
-            if (graph.edges[i].find(j) != graph.edges[i].end()) {
-                auto edge_weight = graph.edges[i][j] + 1;
-                edges_weight.push_back(edge_weight);
-            } else {
-                edges_weight.push_back(1);
-            }
+    x_edges.push_back(0);
+    for (auto vertice = 0; vertice < vertex.size(); vertice++) {
+        auto last_edge_index = x_edges.back();
+        auto n_neighbours = graph.edges[vertice].size();
+        x_edges.push_back(last_edge_index + n_neighbours);
+
+        for (auto vk: graph.edges[vertice]) {
+            auto neighbour = vk.first;
+            auto weight = vk.second;
+            edges.push_back(neighbour);
+            edges_weight.push_back(weight);
         }
     }
 
@@ -203,7 +199,16 @@ PartitionScheme cut_graph(Graph& graph, idx_t n_partitions) {
 int main(int argc, char *argv[]) {
 
     if (argc != 7) {
-        std::cout << "Wrong number of args\n";
+        std::cout << "Usage:\n";
+        std::cout << "./graph_cut n_vertex n_accesses k n_k_accesses ";
+        std::cout << "k_access_weight n_partitions\n\n";
+        std::cout << "n_vertex - Number of vertices do be created.\n";
+        std::cout << "n_accesses - Number of random accesses in a single vertice.\n";
+        std::cout << "k - How many vertex multi-vertex accesses access.\n";
+        std::cout << "n_k_accesses - Number of random multi-vertex accesses.\n";
+        std::cout << "k_access_weight - How much weight will be added on edges on ";
+        std::cout << "multi-vertex access.\n";
+        std::cout << "n_partitions - Number of partitions to be generated.\n";
         return 0;
     }
 
@@ -211,12 +216,12 @@ int main(int argc, char *argv[]) {
     auto n_accesses = atoi(argv[2]);
     auto k = atoi(argv[3]);
     auto n_k_accesses = atoi(argv[4]);
-    auto access_weight = atoi(argv[5]);
+    auto k_access_weight = atoi(argv[5]);
     auto n_partitions = atoi(argv[6]);
 
     auto graph = Graph(n_vertex);
     simulate_single_data_access(graph, n_accesses);
-    simulate_k_data_access(graph, k, n_k_accesses, access_weight);
+    simulate_k_data_access(graph, k, n_k_accesses, k_access_weight);
 
     auto partition_scheme = cut_graph(graph, n_partitions);
 
