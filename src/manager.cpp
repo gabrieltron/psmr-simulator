@@ -117,8 +117,10 @@ void Manager::import_requests(std::string input_path) {
     }
 }
 
-void Manager::export_graph(std::ostream& output_stream) {
-    access_graph_.export_graph(output_stream);
+void Manager::export_graph(
+    std::ostream& output_stream, model::ExportFormat format
+) {
+    access_graph_.export_graph(output_stream, format);
 }
 
 }

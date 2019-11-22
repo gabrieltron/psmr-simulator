@@ -37,10 +37,13 @@ public:
     void create_fixed_quantity_requests(int requests_per_data);
     void create_multi_all_data_requests(int n_all_data_requests);
     void execute_requests();
-    model::PartitionScheme partition_graph(int n_partitions);
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
-    void export_graph(std::ostream& output_stream);
+
+    model::PartitionScheme partition_graph(int n_partitions);
+    void export_graph(
+        std::ostream& output_stream, model::ExportFormat format
+    );
 
 private:
     int n_variables_{0};

@@ -108,11 +108,16 @@ int main(int argc, char* argv[]) {
         config, "output", "graph", "export"
     );
     if (export_graph) {
+        const auto str_format = toml::find<std::string>(
+            config, "output", "graph", "format"
+        );
+        auto format = model::string_to_format.at(str_format);
         const auto output_path = toml::find<std::string>(
             config, "output", "graph", "output_path"
         );
+
         std::ofstream ofs(output_path, std::ofstream::out);
-        manager.export_graph(ofs);
+        manager.export_graph(ofs, format);
         ofs.close();
     }
 
