@@ -16,26 +16,31 @@ void generate_random_requests(
     const auto single_data_distribution_ = toml::find<std::string>(
         config, "workload", "requests", "single_data", "distribution_pattern"
     );
-    auto single_data_distribution = workload::string_to_distribution.at(
+    auto single_data_distribution = rfunc::string_to_distribution.at(
         single_data_distribution_
     );
-    if (single_data_distribution != workload::Distribution::FIXED) {
+    if (single_data_distribution != rfunc::Distribution::FIXED) {
         const auto n_requests = toml::find<int>(
             config, "workload", "requests", "single_data", "n_requests"
         );
         manager.create_single_data_random_requests(
             n_requests, single_data_distribution
         );
+    } else {
+        const auto requests_per_data = toml::find<int>(
+            config, "workload", "requests", "single_data", "requests_per_data"
+        );
+        manager.create_fixed_quantity_requests(requests_per_data);
     }
 
     // Generate multiple data requisitions
     const auto multi_data_distribution_ = toml::find<std::string>(
         config, "workload", "requests", "multi_data", "distribution_pattern"
     );
-    auto multi_data_distribution = workload::string_to_distribution.at(
+    auto multi_data_distribution = rfunc::string_to_distribution.at(
         multi_data_distribution_
     );
-    if (multi_data_distribution != workload::Distribution::FIXED) {
+    if (multi_data_distribution != rfunc::Distribution::FIXED) {
         const auto n_requests = toml::find<int>(
             config, "workload", "requests", "multi_data", "n_requests"
         );
@@ -46,6 +51,11 @@ void generate_random_requests(
         manager.create_multi_data_random_requests(
             n_requests, multi_data_distribution, max_involved_data
         );
+    } else {
+        const auto n_all_data_requests = toml::find<int>(
+            config, "workload", "requests", "multi_data", "n_all_data_requests"
+        );
+        manager.create_multi_all_data_requests(n_all_data_requests);
     }
 
 }

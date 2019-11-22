@@ -2,11 +2,8 @@
 #define WORKLOAD_MANAGER_H
 
 #include <deque>
-#include <functional>
 #include <iostream>
 #include <string>
-#include <stdlib.h>
-#include <time.h>
 #include <toml11/toml.hpp>
 #include <unordered_map>
 #include <unordered_set>
@@ -14,6 +11,7 @@
 #include "graph.h"
 #include "graph_cut.h"
 #include "partition_scheme.h"
+#include "random.h"
 
 namespace workload {
 
@@ -22,16 +20,6 @@ namespace workload {
 // to be generated a bit faster.
 typedef std::unordered_set<int> Request;
 
-enum Distribution {FIXED, UNIFORM};
-const std::unordered_map<std::string, Distribution> string_to_distribution({
-    {"FIXED", Distribution::FIXED},
-    {"UNIFORM", Distribution::UNIFORM}
-});
-
-std::function<int()> get_random_function(
-    Distribution distribution, int max_value
-);
-
 class Manager {
 public:
     Manager() = default;
@@ -39,13 +27,15 @@ public:
 
     void create_single_data_random_requests(
         int n_requests,
-        Distribution distribution_pattern
+        rfunc::Distribution distribution_pattern
     );
     void create_multi_data_random_requests(
         int n_requests,
-        Distribution distribution_pattern,
+        rfunc::Distribution distribution_pattern,
         int max_involved_vertex
     );
+    void create_fixed_quantity_requests(int requests_per_data);
+    void create_multi_all_data_requests(int n_all_data_requests);
     void execute_requests();
     model::PartitionScheme partition_graph(int n_partitions);
     void export_requests(std::ostream& output_stream);

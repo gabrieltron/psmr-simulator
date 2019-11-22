@@ -9,12 +9,12 @@ Manager::Manager(int n_variables) :
 
 void Manager::create_single_data_random_requests(
     int n_requests,
-    Distribution distribution_pattern
+    rfunc::Distribution distribution_pattern
 ) {
     // Idk how to manage this properly with other random distributions.
     // This seems general enough, but it may prove to be a bad decision
-    auto random_function = get_random_function(
-        distribution_pattern, n_variables_
+    auto random_function = rfunc::get_random_function(
+        distribution_pattern, n_variables_-1
     );
 
     for (auto i = 0; i < n_requests; i++) {
@@ -26,11 +26,11 @@ void Manager::create_single_data_random_requests(
 
 void Manager::create_multi_data_random_requests(
     int n_requests,
-    Distribution distribution_pattern,
+    rfunc::Distribution distribution_pattern,
     int max_involved_data
 ) {
-    auto random_function = get_random_function(
-        distribution_pattern, n_variables_
+    auto random_function = rfunc::get_random_function(
+        distribution_pattern, n_variables_-1
     );
 
     for (auto i = 0; i < n_requests; i++) {
@@ -45,6 +45,25 @@ void Manager::create_multi_data_random_requests(
             request.insert(data);
         }
 
+        requests_.push_back(request);
+    }
+}
+
+void Manager::create_fixed_quantity_requests(int requests_per_data) {
+    for (auto i = 0; i < n_variables_; i++) {
+        for (auto j = 0; j < requests_per_data; j++) {
+            Request request = {i};
+            requests_.push_back(request);
+        }
+    }
+}
+
+void Manager::create_multi_all_data_requests(int n_all_data_requests) {
+    for (auto i = 0; i < n_all_data_requests; i++) {
+        auto request = Request();
+        for (auto j = 0; j < n_variables_; j++) {
+            request.insert(j);
+        }
         requests_.push_back(request);
     }
 }
@@ -100,17 +119,6 @@ void Manager::import_requests(std::string input_path) {
 
 void Manager::export_graph(std::ostream& output_stream) {
     access_graph_.export_graph(output_stream);
-}
-
-std::function<int()> get_random_function(
-    Distribution distribution, int max_value
-) {
-    if (distribution == Distribution::UNIFORM) {
-        srand(time(NULL));
-        return [max_value] {
-            return rand() % max_value;
-        };
-    }
 }
 
 }
