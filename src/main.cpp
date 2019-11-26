@@ -128,12 +128,19 @@ int main(int argc, char* argv[]) {
     auto partition_scheme = manager.partition_graph(n_partitions);
 
     // export partitions
-    const auto partitions_output_path = toml::find<std::string>(
-        config, "output", "partitions_output"
+    const auto info_output_path = toml::find<std::string>(
+        config, "output", "partitions", "info_output_path"
     );
-    std::ofstream ofs(partitions_output_path, std::ofstream::out);
-    partition_scheme.export_scheme(ofs);
-    ofs.close();
+    std::ofstream info_ofs(info_output_path, std::ofstream::out);
+    partition_scheme.export_info(info_ofs);
+    info_ofs.close();
+
+    const auto graph_output_path = toml::find<std::string>(
+        config, "output", "partitions", "graph_output_path"
+    );
+    std::ofstream graph_ofs(graph_output_path, std::ofstream::out);
+    partition_scheme.export_graph(graph_ofs);
+    graph_ofs.close();
 
     return 0;
 }

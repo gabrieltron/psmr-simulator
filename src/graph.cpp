@@ -59,6 +59,11 @@ void Graph::export_metis(std::ostream& output_stream) {
 
 void Graph::export_dot(std::ostream& output_stream) {
     output_stream << "graph {\n";
+    export_dot_body(output_stream);
+    output_stream << "}";
+}
+
+void Graph::export_dot_body(std::ostream& output_stream) {
     auto in_file = std::unordered_map<int, std::unordered_set<int>>();
     for (auto kv : vertex_) {
         auto vertice = kv.first;
@@ -88,7 +93,6 @@ void Graph::export_dot(std::ostream& output_stream) {
             in_file[vertice].insert(neighbour);
         }
     }
-    output_stream << "}";
 }
 
 std::size_t Graph::n_vertex() {

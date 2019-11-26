@@ -22,7 +22,8 @@ public:
         PartitionSchemeInfo& edges_weight
     );
 
-    void export_scheme(std::ostream& output_stream);
+    void export_info(std::ostream& output_stream);
+    void export_graph(std::ostream& output_stream);
 
 private:
     std::unordered_map<int, Graph> partitions_;

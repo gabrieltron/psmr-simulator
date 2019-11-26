@@ -16,17 +16,14 @@ PartitionScheme::PartitionScheme(
         auto weight = og_graph.vertex_weight(vertice);
         partitions_[partition].add_vertice(vertice, weight);
 
-        for (auto kv: og_graph.vertice_edges(vertice)) {
+        for (auto kv: partitions_[partition].vertex()) {
             auto neighbour = kv.first;
-            auto edge_weight = kv.second;
-
-            if (vertex_partitions[neighbour] != partition) {
+            if (neighbour == vertice) {
                 continue;
             }
-                
-            partitions_[partition].add_edge(
-                vertice, neighbour, edge_weight
-            );
+
+            partitions_[partition].add_edge(vertice, neighbour);
+            partitions_[partition].add_edge(neighbour, vertice);
         }
     }
 }
@@ -60,7 +57,7 @@ void PartitionScheme::info(
     }
 }
 
-void PartitionScheme::export_scheme(std::ostream& output_stream) {
+void PartitionScheme::export_info(std::ostream& output_stream) {
     auto partitions_weight = PartitionSchemeInfo();
     auto partitions_edges_weight = PartitionSchemeInfo();
     info(partitions_weight, partitions_edges_weight);
@@ -77,6 +74,15 @@ void PartitionScheme::export_scheme(std::ostream& output_stream) {
         }
         output_stream << "\n";
     }
+}
+
+void PartitionScheme::export_graph(std::ostream& output_stream) {
+    output_stream << "graph {\n";
+    for (auto kv : partitions_) {
+        auto graph = kv.second;
+        graph.export_dot_body(output_stream);
+    }
+    output_stream << "}";
 }
 
 }

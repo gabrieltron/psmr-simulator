@@ -30,6 +30,9 @@ public:
     void increase_vertice_weight(int vertice);
     void increase_edge_weight(int from, int to);
     void export_graph(std::ostream& output_stream, ExportFormat format);
+    void export_metis(std::ostream& output_stream);
+    void export_dot(std::ostream& output_stream);
+    void export_dot_body(std::ostream& output_stream);
 
     std::size_t n_vertex();
     int vertex_weight(int vertice);
@@ -37,9 +40,6 @@ public:
     Vertex vertex();
 
 private:
-    void export_metis(std::ostream& output_stream);
-    void export_dot(std::ostream& output_stream);
-
     Vertex vertex_;
     Edges edges_;
     int n_edges_{0};
