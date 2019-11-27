@@ -1,88 +1,57 @@
 #include "partition_scheme.h"
 
-namespace model {
+namespace workload {
 
 PartitionScheme::PartitionScheme(
-    Graph& og_graph,
-    std::vector<long int>& vertex_partitions
-) {
-    for(auto vertice = 0; vertice < vertex_partitions.size(); vertice++) {
-        auto partition = vertex_partitions[vertice];
+    std::vector<long int>& data_partitions
+) : data_partitions_{data_partitions}
+{
+    update_partitions(data_partitions);
+}
 
+void PartitionScheme::update_partitions(
+    const std::vector<long int>& data_partitions
+) {
+    data_partitions_ = data_partitions;
+    partitions_ = Partitions();
+
+    for (auto data = 0; data < data_partitions.size(); data++) {
+        auto partition = data_partitions[data];
         if (partitions_.find(partition) == partitions_.end()) {
-            partitions_[partition] = Graph();
+            partitions_[partition] = std::unordered_set<int>();
         }
 
-        auto weight = og_graph.vertex_weight(vertice);
-        partitions_[partition].add_vertice(vertice, weight);
+        partitions_[partition].insert(data);
+    }
+}
 
-        for (auto kv: partitions_[partition].vertex()) {
-            auto neighbour = kv.first;
-            if (neighbour == vertice) {
+model::Graph PartitionScheme::graph_representation() {
+    auto graph = model::Graph();
+
+    for(auto data = 0; data < data_partitions_.size(); data++) {
+        auto partition = data_partitions_[data];
+
+        graph.add_vertice(data);
+        for (auto neighbour: partitions_[partition]) {
+            if (neighbour == data) {
                 continue;
             }
 
-            partitions_[partition].add_edge(vertice, neighbour);
-            partitions_[partition].add_edge(neighbour, vertice);
+            graph.add_edge(data, neighbour);
+            graph.add_edge(neighbour, data);
         }
     }
+
+    return graph;
 }
 
-void PartitionScheme::info(
-    PartitionSchemeInfo& vertex_weight,
-    PartitionSchemeInfo& edges_weight
-) {
-    for (auto kv: partitions_) {
-        auto partition_id = kv.first;
-        auto partition_graph = kv.second;
-
-        vertex_weight[partition_id] = 0;
-        edges_weight[partition_id] = 0;
-
-        for (auto v_tuple: partition_graph.vertex()) {
-            auto vertice = v_tuple.first;
-            auto weight = v_tuple.second;
-
-            vertex_weight[partition_id] += weight;
-
-            for (auto e_tuple: partition_graph.vertice_edges(vertice)) {
-                auto neighbour = e_tuple.first;
-                auto edge_weight = e_tuple.second;
-
-                if (vertice < neighbour) {
-                    edges_weight[partition_id] +=edge_weight;
-                }
-            }
-        } 
-    }
+Partitions PartitionScheme::partitions() {
+    return partitions_;
 }
 
-void PartitionScheme::export_info(std::ostream& output_stream) {
-    auto partitions_weight = PartitionSchemeInfo();
-    auto partitions_edges_weight = PartitionSchemeInfo();
-    info(partitions_weight, partitions_edges_weight);
-
-    output_stream << "Partição | Peso Vértices | Peso Arestas | Vértices\n"; 
-    for (auto kv : partitions_) {
-        auto i = kv.first;
-
-        output_stream << i << " | " << partitions_weight[i]; 
-        output_stream << " | " << partitions_edges_weight[i] << " |";
-        for (auto kv : partitions_[i].vertex()) {
-            auto vertice = kv.first;
-            output_stream << " " << vertice; 
-        }
-        output_stream << "\n";
-    }
-}
-
-void PartitionScheme::export_graph(std::ostream& output_stream) {
-    output_stream << "graph {\n";
-    for (auto kv : partitions_) {
-        auto graph = kv.second;
-        graph.export_dot_body(output_stream);
-    }
-    output_stream << "}";
+void PartitionScheme::export_as_graph(std::ostream& output_stream) {
+    auto graph = graph_representation();
+    graph.export_graph(output_stream, model::ExportFormat::DOT);
 }
 
 }

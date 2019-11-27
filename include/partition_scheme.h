@@ -2,31 +2,30 @@
 #define MODEL_PARTITION_SCHEME_H
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "graph.h"
 
-namespace model{
+namespace workload{
 
-typedef std::unordered_map<int, int> PartitionSchemeInfo;
+typedef std::unordered_map<int, std::unordered_set<int>> Partitions;
 
 class PartitionScheme {
 public:
     PartitionScheme(
-        model::Graph& og_graph,
-        std::vector<long int>& vertex_partitions
+        std::vector<long int>& data_partitions
     );
 
-    void info(
-        PartitionSchemeInfo& vertex_weight,
-        PartitionSchemeInfo& edges_weight
-    );
+    void update_partitions(const std::vector<long int>& data_partitions);
+    model::Graph graph_representation();
+    Partitions partitions();
 
-    void export_info(std::ostream& output_stream);
-    void export_graph(std::ostream& output_stream);
+    void export_as_graph(std::ostream& output_stream);
 
 private:
-    std::unordered_map<int, Graph> partitions_;
+    std::vector<long int> data_partitions_;
+    Partitions partitions_;
 };
 
 }

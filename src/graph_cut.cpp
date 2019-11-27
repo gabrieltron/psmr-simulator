@@ -2,7 +2,7 @@
 
 namespace model {
 
-PartitionScheme cut_graph(Graph& graph, idx_t n_partitions) {
+std::vector<long int> cut_graph(Graph& graph, idx_t n_partitions) {
     auto vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
     idx_t n_edges = n_vertice * (n_vertice - 1);
@@ -45,8 +45,48 @@ PartitionScheme cut_graph(Graph& graph, idx_t n_partitions) {
         NULL, options, &objval, vertex_partitions.data()
     );
     
-    auto partition_scheme = PartitionScheme(graph, vertex_partitions);
-    return partition_scheme;
+    return vertex_partitions;
+}
+
+std::unordered_map<int, int> partitions_weight(
+    Graph& graph, workload::PartitionScheme& partition_scheme
+) {
+    auto partition_weight = std::unordered_map<int, int>();
+    auto partitions = partition_scheme.partitions();
+    for (auto kv: partitions) {
+        auto partition_id = kv.first;
+        auto partition_vertex = kv.second;
+
+        partition_weight[partition_id] = 0;
+
+        for (auto vertice: partition_vertex) {
+            auto weight = graph.vertice_weight(vertice);
+            partition_weight[partition_id] += weight;
+        } 
+    }
+
+    return partition_weight;
+}
+
+void export_partitons_weight(
+    Graph& graph,
+    workload::PartitionScheme& partition_scheme,
+    std::ostream& output_stream
+) {
+    auto partition_weight = partitions_weight(graph, partition_scheme);
+
+    output_stream << "Partição | Peso Vértices | Vértices\n"; 
+    for (auto kv : partition_scheme.partitions()) {
+        auto i = kv.first;
+        auto data_set = kv.second;
+
+        output_stream << i << " | " << partition_weight[i]; 
+        output_stream << " | ";
+        for (auto data : data_set) {
+            output_stream << " " << data; 
+        }
+        output_stream << "\n";
+    }
 }
 
 }

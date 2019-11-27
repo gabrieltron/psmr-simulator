@@ -22,8 +22,11 @@ typedef std::unordered_set<int> Request;
 
 class Manager {
 public:
-    Manager() = default;
-    Manager(int n_variables);
+    Manager(
+        int n_variables,
+        int n_partitions,
+        std::vector<long int> data_partition
+    );
 
     void create_single_data_random_requests(
         int n_requests,
@@ -40,14 +43,21 @@ public:
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
 
-    model::PartitionScheme partition_graph(int n_partitions);
-    void export_graph(
+    void repartition_data(int n_partitions);
+    void export_access_graph(
         std::ostream& output_stream, model::ExportFormat format
     );
+    void export_partition_graph(std::ostream& output_stream);
+    void export_partitions_weight(std::ostream& output_stream);
 
 private:
+    std::vector<long int> distribute_rand_partitions(
+        rfunc::Distribution distribution, int n_partitions
+    );
+
     int n_variables_{0};
     std::deque<Request> requests_;
+    PartitionScheme partition_scheme_;
     model::Graph access_graph_;
 };
 

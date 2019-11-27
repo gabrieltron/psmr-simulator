@@ -32,10 +32,9 @@ public:
     void export_graph(std::ostream& output_stream, ExportFormat format);
     void export_metis(std::ostream& output_stream);
     void export_dot(std::ostream& output_stream);
-    void export_dot_body(std::ostream& output_stream);
 
     std::size_t n_vertex();
-    int vertex_weight(int vertice);
+    int vertice_weight(int vertice);
     std::unordered_map<int, int> vertice_edges(int vertice);
     Vertex vertex();
 

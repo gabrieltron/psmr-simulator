@@ -2,9 +2,13 @@
 
 namespace workload {
 
-Manager::Manager(int n_variables) :
-    n_variables_{n_variables},
-    access_graph_{model::Graph(n_variables)}
+Manager::Manager(
+    int n_variables,
+    int n_partitions,
+    std::vector<long int> data_partition)
+    :   n_variables_{n_variables},
+        access_graph_{model::Graph(n_variables)},
+        partition_scheme_{PartitionScheme(data_partition)}
 {}
 
 void Manager::create_single_data_random_requests(
@@ -91,8 +95,9 @@ void Manager::execute_requests() {
     }
 }
 
-model::PartitionScheme Manager::partition_graph(int n_partitions) {
-    return model::cut_graph(access_graph_, n_partitions);
+void Manager::repartition_data(int n_partitions) {
+    auto data_partitions = model::cut_graph(access_graph_, n_partitions);
+    partition_scheme_.update_partitions(data_partitions);
 }
 
 void Manager::export_requests(std::ostream& output_stream) {
@@ -117,10 +122,36 @@ void Manager::import_requests(std::string input_path) {
     }
 }
 
-void Manager::export_graph(
+void Manager::export_access_graph(
     std::ostream& output_stream, model::ExportFormat format
 ) {
     access_graph_.export_graph(output_stream, format);
+}
+
+std::vector<long int> Manager::distribute_rand_partitions(
+    rfunc::Distribution distribution, int n_partitions
+) {
+    auto random_function = rfunc::get_random_function(
+        distribution, n_partitions-1
+    );
+
+    auto data_partitions = std::vector<long int>();
+    for (auto variable = 0; variable < n_variables_; variable++) {
+        auto partition = random_function();
+        data_partitions.push_back(partition);
+    }
+
+    return data_partitions;
+}
+
+void Manager::export_partition_graph(std::ostream& output_stream) {
+    partition_scheme_.export_as_graph(output_stream);
+}
+
+void Manager::export_partitions_weight(std::ostream& output_stream) {
+    model::export_partitons_weight(
+        access_graph_, partition_scheme_, output_stream
+    );
 }
 
 }

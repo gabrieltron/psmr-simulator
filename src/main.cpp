@@ -69,16 +69,29 @@ void import_requests(const toml_config& config, workload::Manager& manager) {
 }
 
 
-int main(int argc, char* argv[]) {
-    const auto config = toml::parse(argv[1]);
-
-    // Creates the manager
+workload::Manager create_manager(const toml_config& config) {
     const auto n_variables = toml::find<int>(
         config, "workload", "n_variables"
     );
-    auto manager = workload::Manager(n_variables);
+    const auto str_partitions_distribution = toml::find<std::string>(
+        config, "workload", "partitions_distribution"
+    );
+    auto partitions_distribution = rfunc::string_to_distribution.at(
+        str_partitions_distribution
+    );
+    const auto n_partitions = toml::find<int>(
+        config, "workload", "n_partitions"
+    );
+    auto manager = workload::Manager(n_variables, n_partitions, {0, 1, 2 , 0, 1, 1, 1, 1, 1, 1});
 
-    // Create/import requests
+    return manager;
+}
+
+
+int main(int argc, char* argv[]) {
+    const auto config = toml::parse(argv[1]);
+
+    auto manager = create_manager(config);
     const auto import_requests_ = toml::find<bool>(
         config, "workload", "requests", "import_requests"
     );
@@ -103,6 +116,8 @@ int main(int argc, char* argv[]) {
 
     manager.execute_requests();
 
+
+    using namespace std;
     // Export generated graph, if requested
     const auto export_graph = toml::find<bool>(
         config, "output", "graph", "export"
@@ -117,7 +132,7 @@ int main(int argc, char* argv[]) {
         );
 
         std::ofstream ofs(output_path, std::ofstream::out);
-        manager.export_graph(ofs, format);
+        manager.export_access_graph(ofs, format);
         ofs.close();
     }
 
@@ -125,21 +140,21 @@ int main(int argc, char* argv[]) {
     const auto n_partitions = toml::find<int>(
         config, "graph", "n_partitions"
     );
-    auto partition_scheme = manager.partition_graph(n_partitions);
+    manager.repartition_data(n_partitions);
 
     // export partitions
     const auto info_output_path = toml::find<std::string>(
         config, "output", "partitions", "info_output_path"
     );
     std::ofstream info_ofs(info_output_path, std::ofstream::out);
-    partition_scheme.export_info(info_ofs);
+    manager.export_partitions_weight(info_ofs);
     info_ofs.close();
 
     const auto graph_output_path = toml::find<std::string>(
         config, "output", "partitions", "graph_output_path"
     );
     std::ofstream graph_ofs(graph_output_path, std::ofstream::out);
-    partition_scheme.export_graph(graph_ofs);
+    manager.export_partition_graph(graph_ofs);
     graph_ofs.close();
 
     return 0;
