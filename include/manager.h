@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "execution_log.h"
 #include "graph.h"
 #include "graph_cut.h"
 #include "partition_scheme.h"
@@ -39,21 +40,21 @@ public:
     );
     void create_fixed_quantity_requests(int requests_per_data);
     void create_multi_all_data_requests(int n_all_data_requests);
-    void execute_requests();
+
+    ExecutionLog execute_requests();
+    void repartition_data(int n_partitions);
+    
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
 
-    void repartition_data(int n_partitions);
-    void export_access_graph(
-        std::ostream& output_stream, model::ExportFormat format
-    );
-    void export_partition_graph(std::ostream& output_stream);
-    void export_partitions_weight(std::ostream& output_stream);
+    model::Graph access_graph();
+    PartitionScheme partiton_scheme();
 
 private:
     std::vector<long int> distribute_rand_partitions(
         rfunc::Distribution distribution, int n_partitions
     );
+    void update_access_graph(Request request);
 
     int n_variables_{0};
     std::deque<Request> requests_;

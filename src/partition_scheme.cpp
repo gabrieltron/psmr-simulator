@@ -49,9 +49,8 @@ Partitions PartitionScheme::partitions() {
     return partitions_;
 }
 
-void PartitionScheme::export_as_graph(std::ostream& output_stream) {
-    auto graph = graph_representation();
-    graph.export_graph(output_stream, model::ExportFormat::DOT);
+int PartitionScheme::data_partition(int data) {
+    return data_partitions_[data];
 }
 
 }

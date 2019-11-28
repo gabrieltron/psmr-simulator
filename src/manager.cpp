@@ -72,25 +72,45 @@ void Manager::create_multi_all_data_requests(int n_all_data_requests) {
     }
 }
 
-void Manager::execute_requests() {
+ExecutionLog Manager::execute_requests() {
+    auto log = ExecutionLog();
+
     while (!requests_.empty()) {
         auto request = requests_.front();
         requests_.pop_front();
-
-        for (auto first_data : request) {
-            access_graph_.increase_vertice_weight(first_data);
-            for (auto second_data : request) {
-                if (first_data == second_data) {
-                    continue;
-                }
-
-                if (!access_graph_.are_connected(first_data, second_data)) {
-                    access_graph_.add_edge(first_data, second_data);
-                    access_graph_.add_edge(second_data, first_data);
-                }
-
-                access_graph_.increase_edge_weight(first_data, second_data);
+        if (request.size() == 1) {
+            auto data = *(request.begin());
+            auto partition = partition_scheme_.data_partition(data);
+            log.increase_elapsed_time(partition);
+        } else {
+            auto max_elapsed_time = log.max_elapsed_time(request);
+            for (auto data : request) {
+                auto partition = partition_scheme_.data_partition(data);
+                log.skip_time(partition, max_elapsed_time+1);
+                log.increase_sync_counter();
             }
+        }
+        
+        update_access_graph(request);
+    }
+
+    return log;
+}
+
+void Manager::update_access_graph(Request request) {
+    for (auto first_data : request) {
+        access_graph_.increase_vertice_weight(first_data);
+        for (auto second_data : request) {
+            if (first_data == second_data) {
+                continue;
+            }
+
+            if (!access_graph_.are_connected(first_data, second_data)) {
+                access_graph_.add_edge(first_data, second_data);
+                access_graph_.add_edge(second_data, first_data);
+            }
+
+            access_graph_.increase_edge_weight(first_data, second_data);
         }
     }
 }
@@ -122,10 +142,8 @@ void Manager::import_requests(std::string input_path) {
     }
 }
 
-void Manager::export_access_graph(
-    std::ostream& output_stream, model::ExportFormat format
-) {
-    access_graph_.export_graph(output_stream, format);
+model::Graph Manager::access_graph() {
+    return access_graph_;
 }
 
 std::vector<long int> Manager::distribute_rand_partitions(
@@ -144,14 +162,8 @@ std::vector<long int> Manager::distribute_rand_partitions(
     return data_partitions;
 }
 
-void Manager::export_partition_graph(std::ostream& output_stream) {
-    partition_scheme_.export_as_graph(output_stream);
-}
-
-void Manager::export_partitions_weight(std::ostream& output_stream) {
-    model::export_partitons_weight(
-        access_graph_, partition_scheme_, output_stream
-    );
+PartitionScheme Manager::partiton_scheme() {
+    return partition_scheme_;
 }
 
 }

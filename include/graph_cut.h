@@ -1,7 +1,8 @@
 #ifndef MODEL_GRAPH_CUT_H
 #define MODEL_GRAPH_CUT_H
 
-#include <iostream>
+#include <fstream>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -15,10 +16,10 @@ std::vector<long int> cut_graph(Graph& graph, idx_t n_partitions);
 std::unordered_map<int, int> partitions_weight(
     Graph& graph, std::vector<long int>& vertex_partitions
 );
-void export_partitons_weight(
+void export_partitions_weight(
     Graph& graph,
     workload::PartitionScheme& partition_scheme,
-    std::ostream& output_stream
+    std::string path
 );
 
 }

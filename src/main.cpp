@@ -5,6 +5,8 @@
 #include <toml11/toml.hpp>
 #include <unordered_map>
 
+#include "file_write.h"
+#include "graph_cut.h"
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
@@ -73,18 +75,21 @@ workload::Manager create_manager(const toml_config& config) {
     const auto n_variables = toml::find<int>(
         config, "workload", "n_variables"
     );
+    const auto n_partitions = toml::find<int>(
+        config, "workload", "n_partitions"
+    );
     const auto str_partitions_distribution = toml::find<std::string>(
         config, "workload", "partitions_distribution"
     );
     auto partitions_distribution = rfunc::string_to_distribution.at(
         str_partitions_distribution
     );
-    const auto n_partitions = toml::find<int>(
-        config, "workload", "n_partitions"
-    );
-    auto manager = workload::Manager(n_variables, n_partitions, {0, 1, 2 , 0, 1, 1, 1, 1, 1, 1});
-
-    return manager;
+    if (partitions_distribution == rfunc::Distribution::FIXED) {
+        const auto initial_partition = toml::find<std::vector<long int>>(
+            config, "workload", "initial_partition"
+        );
+        return workload::Manager(n_variables, n_partitions, initial_partition);
+    }
 }
 
 
@@ -116,7 +121,6 @@ int main(int argc, char* argv[]) {
 
     manager.execute_requests();
 
-
     using namespace std;
     // Export generated graph, if requested
     const auto export_graph = toml::find<bool>(
@@ -126,14 +130,13 @@ int main(int argc, char* argv[]) {
         const auto str_format = toml::find<std::string>(
             config, "output", "graph", "format"
         );
-        auto format = model::string_to_format.at(str_format);
-        const auto output_path = toml::find<std::string>(
+        auto format = output::string_to_format.at(str_format);
+        const auto path = toml::find<std::string>(
             config, "output", "graph", "output_path"
         );
 
-        std::ofstream ofs(output_path, std::ofstream::out);
-        manager.export_access_graph(ofs, format);
-        ofs.close();
+        auto graph = manager.access_graph();
+        output::write_graph(graph, format, path);
     }
 
     // cut graph
@@ -146,16 +149,17 @@ int main(int argc, char* argv[]) {
     const auto info_output_path = toml::find<std::string>(
         config, "output", "partitions", "info_output_path"
     );
-    std::ofstream info_ofs(info_output_path, std::ofstream::out);
-    manager.export_partitions_weight(info_ofs);
-    info_ofs.close();
+    auto og_graph = manager.access_graph();
+    auto partition_scheme = manager.partiton_scheme();
+    model::export_partitions_weight(
+        og_graph, partition_scheme, info_output_path
+    );
 
     const auto graph_output_path = toml::find<std::string>(
         config, "output", "partitions", "graph_output_path"
     );
-    std::ofstream graph_ofs(graph_output_path, std::ofstream::out);
-    manager.export_partition_graph(graph_ofs);
-    graph_ofs.close();
+    auto graph = manager.partiton_scheme().graph_representation();
+    output::write_dot_format(graph, graph_output_path);
 
     return 0;
 }

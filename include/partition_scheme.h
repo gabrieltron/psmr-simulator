@@ -20,8 +20,7 @@ public:
     void update_partitions(const std::vector<long int>& data_partitions);
     model::Graph graph_representation();
     Partitions partitions();
-
-    void export_as_graph(std::ostream& output_stream);
+    int data_partition(int data);
 
 private:
     std::vector<long int> data_partitions_;

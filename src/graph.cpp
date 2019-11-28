@@ -36,65 +36,12 @@ bool Graph::are_connected(int vertice_a, int vertice_b) {
     return edges_[vertice_a].find(vertice_b) != edges_[vertice_a].end();
 }
 
-void Graph::export_graph(std::ostream& output_stream, ExportFormat format) {
-    if (format == ExportFormat::METIS) {
-        export_metis(output_stream);
-    } else if (format == ExportFormat::DOT) {
-        export_dot(output_stream);
-    }
-}
-
-void Graph::export_metis(std::ostream& output_stream) {
-    output_stream << n_vertex() << " " << n_edges_ << " 011";
-    for (auto i = 0; i < n_vertex(); i++) {
-        output_stream << "\n" << vertex_[i];
-        for (auto kv : edges_[i]) {
-            auto neighbour = kv.first;
-            auto edge_weight = kv.second;
-            output_stream << " " << neighbour;
-            output_stream << " " << edge_weight;
-        }
-    } 
-}
-
-void Graph::export_dot(std::ostream& output_stream) {
-    output_stream << "graph {\n";
-
-    auto in_file = std::unordered_map<int, std::unordered_set<int>>();
-    for (auto kv : vertex_) {
-        auto vertice = kv.first;
-        auto weight = kv.second;
-        in_file[vertice] = std::unordered_set<int>();
-
-        std::stringstream id_stream;
-        id_stream << "\"id:" << vertice << " w:" << weight << "\"";
-        auto id = id_stream.str();
-        output_stream << "    " << id << ";\n";
-
-        for (auto kv_2 : edges_[vertice]) {
-            auto neighbour = kv_2.first;
-            auto edge_weight = kv_2.second;
-            if (in_file[neighbour].find(vertice) != in_file[neighbour].end()) {
-                continue;
-            }
-
-            std::stringstream neighbour_id_stream;
-            neighbour_id_stream << "\"id:" << neighbour;
-            neighbour_id_stream << " w:" << vertex_[neighbour] << "\"";
-            auto neighbour_id = neighbour_id_stream.str();
-            output_stream << "    " << id << " -- ";
-            output_stream << neighbour_id;
-            output_stream << "[label=\"" << edge_weight << "\"];\n";
-
-            in_file[vertice].insert(neighbour);
-        }
-    }
-
-    output_stream << "}";
-}
-
 std::size_t Graph::n_vertex() {
     return vertex_.size();
+}
+
+std::size_t Graph::n_edges() {
+    return n_edges_;
 }
 
 int Graph::vertice_weight(int vertice) {

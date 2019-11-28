@@ -1,7 +1,6 @@
 #ifndef MODEL_GRAPH_H
 #define MODEL_GRAPH_H
 
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -13,12 +12,6 @@ namespace model {
 typedef std::unordered_map<int, int> Vertex;
 typedef std::unordered_map<int,std::unordered_map<int, int>> Edges;
 
-enum ExportFormat {METIS, DOT};
-const std::unordered_map<std::string, ExportFormat> string_to_format({
-    {"METIS", ExportFormat::METIS},
-    {"DOT", ExportFormat::DOT}
-});
-
 class Graph {
 public:
     Graph() = default;
@@ -29,11 +22,9 @@ public:
     bool are_connected(int vertice_a, int vertice_b);
     void increase_vertice_weight(int vertice);
     void increase_edge_weight(int from, int to);
-    void export_graph(std::ostream& output_stream, ExportFormat format);
-    void export_metis(std::ostream& output_stream);
-    void export_dot(std::ostream& output_stream);
 
     std::size_t n_vertex();
+    std::size_t n_edges();
     int vertice_weight(int vertice);
     std::unordered_map<int, int> vertice_edges(int vertice);
     Vertex vertex();
