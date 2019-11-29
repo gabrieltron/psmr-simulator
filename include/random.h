@@ -2,6 +2,7 @@
 #define RFUNC_RANDOM_H
 
 #include <functional>
+#include <random>
 #include <unordered_map>
 
 namespace rfunc {

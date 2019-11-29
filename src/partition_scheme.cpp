@@ -3,24 +3,26 @@
 namespace workload {
 
 PartitionScheme::PartitionScheme(
+    int n_partitions,
     std::vector<long int>& data_partitions
 ) : data_partitions_{data_partitions}
 {
-    update_partitions(data_partitions);
+    update_partitions(n_partitions, data_partitions);
 }
 
 void PartitionScheme::update_partitions(
+    int n_partitions,
     const std::vector<long int>& data_partitions
 ) {
     data_partitions_ = data_partitions;
     partitions_ = Partitions();
 
+    for (auto i = 0; i < n_partitions; i++) {
+        partitions_[i] = std::unordered_set<int>();
+    }
+
     for (auto data = 0; data < data_partitions.size(); data++) {
         auto partition = data_partitions[data];
-        if (partitions_.find(partition) == partitions_.end()) {
-            partitions_[partition] = std::unordered_set<int>();
-        }
-
         partitions_[partition].insert(data);
     }
 }
@@ -57,5 +59,8 @@ std::vector<long int> PartitionScheme::data_partition_vector() {
     return data_partitions_;
 }
 
+int PartitionScheme::n_partitions() {
+    return partitions_.size();
+}
 
 }

@@ -1,6 +1,7 @@
 #ifndef WORKLOAD_EXECUTION_LOG_H
 #define WORKLOAD_EXECUTION_LOG_H
 
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -8,12 +9,17 @@ namespace workload {
 
 class ExecutionLog {
 public:
-    ExecutionLog() = default;
+    ExecutionLog(int n_data);
     
     void increase_elapsed_time(int partition);
     void skip_time(int partition, int value);
     void increase_sync_counter();
-    int max_elapsed_time(std::unordered_set<int> request);
+    int max_elapsed_time(std::unordered_set<int> requests);
+
+    int timespan();
+    int n_syncs();
+    std::unordered_map<int, int> idle_time();
+    std::unordered_map<int, int> execution_time();
 
 private:
     int sync_counter_ = 0;

@@ -8,7 +8,7 @@ Manager::Manager(
     std::vector<long int> data_partition)
     :   n_variables_{n_variables},
         access_graph_{model::Graph(n_variables)},
-        partition_scheme_{PartitionScheme(data_partition)}
+        partition_scheme_{PartitionScheme(n_partitions, data_partition)}
 {}
 
 void Manager::create_single_data_random_requests(
@@ -73,22 +73,29 @@ void Manager::create_multi_all_data_requests(int n_all_data_requests) {
 }
 
 ExecutionLog Manager::execute_requests() {
-    auto log = ExecutionLog();
+    auto log = ExecutionLog(partition_scheme_.n_partitions());
 
     while (!requests_.empty()) {
         auto request = requests_.front();
         requests_.pop_front();
-        if (request.size() == 1) {
-            auto data = *(request.begin());
-            auto partition = partition_scheme_.data_partition(data);
+
+        auto involved_partitions = std::unordered_set<int>();
+        for (auto data : request) {
+            involved_partitions.insert(
+                partition_scheme_.data_partition(data)
+            );
+        }
+
+        if (involved_partitions.size() == 1) {
+            auto partition = *(involved_partitions.begin());
             log.increase_elapsed_time(partition);
         } else {
-            auto max_elapsed_time = log.max_elapsed_time(request);
-            for (auto data : request) {
-                auto partition = partition_scheme_.data_partition(data);
-                log.skip_time(partition, max_elapsed_time+1);
-                log.increase_sync_counter();
+            auto max_elapsed_time = log.max_elapsed_time(involved_partitions);
+            for (auto partition : involved_partitions) {
+                log.skip_time(partition, max_elapsed_time);
+                log.increase_elapsed_time(partition);
             }
+            log.increase_sync_counter();
         }
         
         update_access_graph(request);
@@ -117,7 +124,7 @@ void Manager::update_access_graph(Request request) {
 
 void Manager::repartition_data(int n_partitions) {
     auto data_partitions = model::cut_graph(access_graph_, n_partitions);
-    partition_scheme_.update_partitions(data_partitions);
+    partition_scheme_.update_partitions(n_partitions, data_partitions);
 }
 
 void Manager::export_requests(std::ostream& output_stream) {

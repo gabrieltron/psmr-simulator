@@ -79,4 +79,24 @@ void write_cut_info(
     }
 }
 
+void write_log_info(
+    workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
+    output_stream << "Timespan: " << execution_log.timespan() << "\n";
+    output_stream << "Execution time:\n";
+    for (auto kv : execution_log.execution_time()) {
+        auto partition = kv.first;
+        auto time = kv.second;
+        output_stream << partition << ": " << time << "\n";
+    }
+    output_stream << "Idle time:\n";
+    for (auto kv : execution_log.idle_time()) {
+        auto partition = kv.first;
+        auto time = kv.second;
+        output_stream << partition << ": " << time << "\n";
+    }
+    output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";
+}
+
 }

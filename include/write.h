@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "execution_log.h"
 #include "graph.h"
 #include "graph_cut.h"
 #include "partition_scheme.h"
@@ -25,6 +26,10 @@ void write_dot_format(model::Graph& graph, std::ostream& output_stream);
 void write_cut_info(
     model::Graph& graph,
     workload::PartitionScheme& partition_scheme,
+    std::ostream& output_stream
+);
+void write_log_info(
+    workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 );
 
