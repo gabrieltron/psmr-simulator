@@ -1,18 +1,16 @@
-#include "file_write.h"
+#include "write.h"
 
 namespace output {
 
-void write_graph(model::Graph& graph, GraphFormats format, std::string path) {
+void write_graph(model::Graph& graph, GraphFormats format, std::ostream& output_stream) {
     if (format == GraphFormats::METIS) {
-        write_metis_format(graph, path);
+        write_metis_format(graph, output_stream);
     } else if (format == GraphFormats::DOT) {
-        write_dot_format(graph, path);
+        write_dot_format(graph, output_stream);
     }
 }
 
-void write_metis_format(model::Graph& graph, std::string path) {
-    std::ofstream output_stream(path, std::ofstream::out);
-
+void write_metis_format(model::Graph& graph, std::ostream& output_stream) {
     output_stream << graph.n_vertex() << " " << graph.n_edges()/2 << " 011";
     for (auto i = 0; i < graph.n_vertex(); i++) {
         output_stream << "\n" << graph.vertice_weight(i);
@@ -23,13 +21,9 @@ void write_metis_format(model::Graph& graph, std::string path) {
             output_stream << " " << edge_weight;
         }
     } 
-
-    output_stream.close();
 }
 
-void write_dot_format(model::Graph& graph, std::string path) {
-    std::ofstream output_stream(path, std::ofstream::out);
-
+void write_dot_format(model::Graph& graph, std::ostream& output_stream) {
     output_stream << "graph {\n";
     auto in_file = std::unordered_map<int, std::unordered_set<int>>();
     for (auto kv : graph.vertex()) {
@@ -63,7 +57,26 @@ void write_dot_format(model::Graph& graph, std::string path) {
     }
 
     output_stream << "}";
-    output_stream.close();
+}
+
+void write_cut_info(
+    model::Graph& graph,
+    workload::PartitionScheme& partition_scheme,
+    std::ostream& output_stream
+) {
+    auto weights = model::partitions_weight(graph, partition_scheme);
+    output_stream << "Partição | Peso Vértices | Vértices\n"; 
+    for (auto kv : partition_scheme.partitions()) {
+        auto i = kv.first;
+        auto data_set = kv.second;
+
+        output_stream << i << " | " << weights[i]; 
+        output_stream << " | ";
+        for (auto data : data_set) {
+            output_stream << " " << data; 
+        }
+        output_stream << "\n";
+    }
 }
 
 }

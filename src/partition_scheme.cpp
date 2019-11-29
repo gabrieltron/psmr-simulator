@@ -53,4 +53,9 @@ int PartitionScheme::data_partition(int data) {
     return data_partitions_[data];
 }
 
+std::vector<long int> PartitionScheme::data_partition_vector() {
+    return data_partitions_;
+}
+
+
 }

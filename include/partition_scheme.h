@@ -21,6 +21,7 @@ public:
     model::Graph graph_representation();
     Partitions partitions();
     int data_partition(int data);
+    std::vector<long int> data_partition_vector();
 
 private:
     std::vector<long int> data_partitions_;

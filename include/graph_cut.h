@@ -14,12 +14,7 @@ namespace model {
 
 std::vector<long int> cut_graph(Graph& graph, idx_t n_partitions);
 std::unordered_map<int, int> partitions_weight(
-    Graph& graph, std::vector<long int>& vertex_partitions
-);
-void export_partitions_weight(
-    Graph& graph,
-    workload::PartitionScheme& partition_scheme,
-    std::string path
+    Graph& graph, workload::PartitionScheme& partition_scheme
 );
 
 }

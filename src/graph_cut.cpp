@@ -68,28 +68,4 @@ std::unordered_map<int, int> partitions_weight(
     return partition_weight;
 }
 
-void export_partitions_weight(
-    Graph& graph,
-    workload::PartitionScheme& partition_scheme,
-    std::string path
-) {
-    std::ofstream output_stream(path, std::ofstream::out);
-
-    auto partition_weight = partitions_weight(graph, partition_scheme);
-    output_stream << "Partição | Peso Vértices | Vértices\n"; 
-    for (auto kv : partition_scheme.partitions()) {
-        auto i = kv.first;
-        auto data_set = kv.second;
-
-        output_stream << i << " | " << partition_weight[i]; 
-        output_stream << " | ";
-        for (auto data : data_set) {
-            output_stream << " " << data; 
-        }
-        output_stream << "\n";
-    }
-
-    output_stream.close();
-}
-
 }
