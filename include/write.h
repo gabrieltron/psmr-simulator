@@ -32,6 +32,10 @@ void write_log_info(
     workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 );
+void write_data_partitions(
+    std::vector<long int> data_partitions,
+    std::ostream& output_stream
+);
 
 }
 

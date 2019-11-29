@@ -28,6 +28,7 @@ public:
         int n_partitions,
         std::vector<long int> data_partition
     );
+    Manager(int n_variables, int n_partitions);
 
     void create_single_data_random_requests(
         int n_requests,

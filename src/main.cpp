@@ -92,6 +92,7 @@ workload::Manager create_manager(const toml_config& config) {
         return workload::Manager(n_variables, n_partitions, data_partitions);
     }
 
+    return workload::Manager(n_variables, n_partitions);
 }
 
 void export_requests(const toml_config& config, workload::Manager& manager) {
@@ -154,6 +155,19 @@ void export_resulting_partition_graph(
     auto graph = manager.partiton_scheme().graph_representation();
     std::ofstream parition_graph_stream(graph_output_path, std::ofstream::out);
     output::write_dot_format(graph, parition_graph_stream);
+    parition_graph_stream.close();
+}
+
+void export_data_partitions(
+    const toml_config& config, workload::PartitionScheme& partition_scheme
+) {
+    const auto output_path = toml::find<std::string>(
+        config, "output", "partition", "data_partitions", "path"
+    );
+    auto data_partitions = partition_scheme.data_partition_vector();
+    std::ofstream output_stream(output_path, std::ofstream::out);
+    output::write_data_partitions(data_partitions, output_stream);
+    output_stream.close();
 }
 
 int main(int argc, char* argv[]) {
@@ -185,7 +199,7 @@ int main(int argc, char* argv[]) {
         export_workload_graph(config, manager);
     }
     const auto n_partitions = toml::find<int>(
-        config, "graph", "n_partitions"
+        config, "cut", "n_partitions"
     );
     manager.repartition_data(n_partitions);
     export_execution_and_cut_info(config, manager, execution_log);
@@ -195,6 +209,14 @@ int main(int argc, char* argv[]) {
     );
     if (should_export_partition_graph) {
         export_resulting_partition_graph(config, manager);
+    }
+
+    const auto should_export_data_partitions = toml::find<bool>(
+        config, "output", "partition", "data_partitions", "export"
+    );
+    if (should_export_data_partitions) {
+        auto partition_scheme = manager.partiton_scheme();
+        export_data_partitions(config, partition_scheme);
     }
 
     return 0;

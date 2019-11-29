@@ -11,6 +11,20 @@ Manager::Manager(
         partition_scheme_{PartitionScheme(n_partitions, data_partition)}
 {}
 
+// Distribute data in partitions with round-robin
+Manager::Manager(int n_variables, int n_partitions)
+    :   n_variables_{n_variables},
+        access_graph_{model::Graph(n_variables)}
+{
+    auto data_partition = std::vector<long int>();
+    auto current_partition = 0;
+    for (auto i = 0; i < n_variables_; i++) {
+        data_partition.push_back(current_partition);
+        current_partition = (current_partition+1) % n_partitions;
+    }
+    partition_scheme_ = PartitionScheme(n_partitions, data_partition);
+}
+
 void Manager::create_single_data_random_requests(
     int n_requests,
     rfunc::Distribution distribution_pattern

@@ -99,4 +99,15 @@ void write_log_info(
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";
 }
 
+void write_data_partitions(
+    std::vector<long int> data_partitions,
+    std::ostream& output_stream
+) {
+    output_stream << "data_partitions = [ ";
+    for (auto partition : data_partitions) {
+        output_stream << partition << ", ";
+    }
+    output_stream << "]";
+}
+
 }

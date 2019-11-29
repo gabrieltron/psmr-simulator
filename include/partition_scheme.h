@@ -13,6 +13,8 @@ typedef std::unordered_map<int, std::unordered_set<int>> Partitions;
 
 class PartitionScheme {
 public:
+    PartitionScheme() = default;
+
     PartitionScheme(
         int n_partitions,
         std::vector<long int>& data_partitions
