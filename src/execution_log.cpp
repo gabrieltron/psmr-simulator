@@ -20,6 +20,7 @@ void ExecutionLog::sync_partitions(std::unordered_set<int>& partitions) {
         skip_time(partition, timeskip);
     }
     syncs_with_n_partitions_[partitions.size()]++;
+    sync_counter_++;
 }
 
 void ExecutionLog::skip_time(int partition, int value) {
