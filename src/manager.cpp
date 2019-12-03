@@ -104,12 +104,10 @@ ExecutionLog Manager::execute_requests() {
             auto partition = *(involved_partitions.begin());
             log.increase_elapsed_time(partition);
         } else {
-            auto max_elapsed_time = log.max_elapsed_time(involved_partitions);
+            log.sync_partitions(involved_partitions);
             for (auto partition : involved_partitions) {
-                log.skip_time(partition, max_elapsed_time);
                 log.increase_elapsed_time(partition);
             }
-            log.increase_sync_counter();
         }
         
         update_access_graph(request);

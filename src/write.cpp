@@ -83,20 +83,31 @@ void write_log_info(
     workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 ) {
-    output_stream << "Timespan: " << execution_log.timespan() << "\n";
+    auto makespan = execution_log.makespan();
+    output_stream << "Makespan: " << makespan << "\n";
     output_stream << "Execution time:\n";
-    for (auto kv : execution_log.execution_time()) {
-        auto partition = kv.first;
-        auto time = kv.second;
-        output_stream << partition << ": " << time << "\n";
+    auto execution_time = execution_log.execution_time();
+    for (auto i = 0; i < execution_time.size(); i++) {
+        output_stream << i << ": " << execution_time[i] << "\n";
     }
+
     output_stream << "Idle time:\n";
-    for (auto kv : execution_log.idle_time()) {
-        auto partition = kv.first;
-        auto time = kv.second;
-        output_stream << partition << ": " << time << "\n";
+    auto idle_time = execution_log.idle_time();
+    for (auto i = 0; i < idle_time.size(); i++) {
+        output_stream << i << ": " << idle_time[i];
+        auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
+        output_stream << " - " << idle_percentage << "%\n";
     }
+    output_stream << "\n";
+
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";
+    output_stream << "Syncs involving partitions:\n";
+    auto syncs_with_n_partitions = execution_log.syncs_with_n_partitions();
+    for (auto i = 1; i <= syncs_with_n_partitions.size(); i++) {
+        output_stream << i << " partitions: ";
+        output_stream << syncs_with_n_partitions[i] << "\n";
+    }
+    output_stream << "\n";
 }
 
 void write_data_partitions(
