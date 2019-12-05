@@ -2,7 +2,7 @@
 
 namespace rfunc {
 
-std::function<int()> get_random_function(
+RandFunction get_random_function(
     Distribution distribution, int max_value
 ) {
     std::random_device rd;

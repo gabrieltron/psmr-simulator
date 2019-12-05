@@ -30,24 +30,14 @@ public:
     );
     Manager(int n_variables, int n_partitions);
 
-    void create_single_data_random_requests(
-        int n_requests,
-        rfunc::Distribution distribution_pattern
-    );
-    void create_multi_data_random_requests(
-        int n_requests,
-        rfunc::Distribution distribution_pattern,
-        int max_involved_vertex
-    );
-    void create_fixed_quantity_requests(int requests_per_data);
-    void create_multi_all_data_requests(int n_all_data_requests);
-
+    void add_request(Request request);
     ExecutionLog execute_requests();
     void repartition_data(int n_partitions);
-    
+
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
 
+    int n_variables();
     model::Graph access_graph();
     PartitionScheme partiton_scheme();
 

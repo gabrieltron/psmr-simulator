@@ -25,65 +25,8 @@ Manager::Manager(int n_variables, int n_partitions)
     partition_scheme_ = PartitionScheme(n_partitions, data_partition);
 }
 
-void Manager::create_single_data_random_requests(
-    int n_requests,
-    rfunc::Distribution distribution_pattern
-) {
-    // Idk how to manage this properly with other random distributions.
-    // This seems general enough, but it may prove to be a bad decision
-    auto random_function = rfunc::get_random_function(
-        distribution_pattern, n_variables_-1
-    );
-
-    for (auto i = 0; i < n_requests; i++) {
-        auto data = random_function();
-        Request request = {data};
-        requests_.push_back(request);
-    }
-}
-
-void Manager::create_multi_data_random_requests(
-    int n_requests,
-    rfunc::Distribution distribution_pattern,
-    int max_involved_data
-) {
-    auto random_function = rfunc::get_random_function(
-        distribution_pattern, n_variables_-1
-    );
-
-    for (auto i = 0; i < n_requests; i++) {
-        // Randomly select involved vertex
-        auto request = Request();
-        auto n_involved_data = (random_function()%(max_involved_data-1))+2;
-        for (auto j = 0; j < n_involved_data; j++) {
-            auto data = random_function();
-            while (request.find(data) != request.end()) {
-                data = (data + 1) % max_involved_data;
-            }
-            request.insert(data);
-        }
-
-        requests_.push_back(request);
-    }
-}
-
-void Manager::create_fixed_quantity_requests(int requests_per_data) {
-    for (auto i = 0; i < n_variables_; i++) {
-        for (auto j = 0; j < requests_per_data; j++) {
-            Request request = {i};
-            requests_.push_back(request);
-        }
-    }
-}
-
-void Manager::create_multi_all_data_requests(int n_all_data_requests) {
-    for (auto i = 0; i < n_all_data_requests; i++) {
-        auto request = Request();
-        for (auto j = 0; j < n_variables_; j++) {
-            request.insert(j);
-        }
-        requests_.push_back(request);
-    }
+void Manager::add_request(Request request) {
+    requests_.push_back(request);
 }
 
 ExecutionLog Manager::execute_requests() {
@@ -185,6 +128,10 @@ std::vector<long int> Manager::distribute_rand_partitions(
 
 PartitionScheme Manager::partiton_scheme() {
     return partition_scheme_;
+}
+
+int Manager::n_variables() {
+    return n_variables_;
 }
 
 }
