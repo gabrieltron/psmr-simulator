@@ -7,13 +7,15 @@
 
 namespace rfunc {
 
+typedef std::function<int()> RandFunction;
+
 enum Distribution {FIXED, UNIFORM};
 const std::unordered_map<std::string, Distribution> string_to_distribution({
     {"FIXED", Distribution::FIXED},
     {"UNIFORM", Distribution::UNIFORM}
 });
 
-std::function<int()> get_random_function(
+RandFunction get_random_function(
     Distribution distribution, int max_value
 );
 
