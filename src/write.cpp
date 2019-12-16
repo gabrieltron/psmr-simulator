@@ -85,19 +85,16 @@ void write_log_info(
 ) {
     auto makespan = execution_log.makespan();
     output_stream << "Makespan: " << makespan << "\n";
-    output_stream << "Execution time:\n";
+    output_stream << "Execution time | Idle Time | Idle percentage\n";
     auto execution_time = execution_log.execution_time();
+    auto idle_time = execution_log.idle_time();
     for (auto i = 0; i < execution_time.size(); i++) {
-        output_stream << i << ": " << execution_time[i] << "\n";
+        output_stream << i << ": " << execution_time[i] << " | ";
+        output_stream << idle_time[i] << " | ";
+        auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
+        output_stream << idle_percentage << "%\n";
     }
 
-    output_stream << "Idle time:\n";
-    auto idle_time = execution_log.idle_time();
-    for (auto i = 0; i < idle_time.size(); i++) {
-        output_stream << i << ": " << idle_time[i];
-        auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
-        output_stream << " - " << idle_percentage << "%\n";
-    }
     output_stream << "\n";
 
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";

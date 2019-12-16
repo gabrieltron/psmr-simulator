@@ -148,9 +148,8 @@ void export_execution_and_cut_info(
         config, "output", "info_path"
     );
     std::ofstream output_stream(output_path, std::ofstream::out);
-    export_cut_info(manager, output_stream);
-    output_stream << "\n";
     export_execution_info(execution_log, output_stream);
+    export_cut_info(manager, output_stream);
     output_stream.close();
 }
 
