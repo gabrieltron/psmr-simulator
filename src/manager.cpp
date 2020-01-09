@@ -52,7 +52,7 @@ ExecutionLog Manager::execute_requests() {
                 log.increase_elapsed_time(partition);
             }
         }
-        
+
         update_access_graph(request);
     }
 
@@ -104,24 +104,15 @@ void Manager::import_requests(std::string input_path) {
     }
 }
 
-model::Graph Manager::access_graph() {
-    return access_graph_;
+void Manager::set_requests(std::vector<Request> requests) {
+    for (auto request_vector : requests) {
+        auto request = Request(request_vector.begin(), request_vector.end());
+        requests_.push_back(request);
+    }
 }
 
-std::vector<long int> Manager::distribute_rand_partitions(
-    rfunc::Distribution distribution, int n_partitions
-) {
-    auto random_function = rfunc::get_random_function(
-        distribution, n_partitions-1
-    );
-
-    auto data_partitions = std::vector<long int>();
-    for (auto variable = 0; variable < n_variables_; variable++) {
-        auto partition = random_function();
-        data_partitions.push_back(partition);
-    }
-
-    return data_partitions;
+model::Graph Manager::access_graph() {
+    return access_graph_;
 }
 
 PartitionScheme Manager::partiton_scheme() {

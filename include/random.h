@@ -9,16 +9,16 @@ namespace rfunc {
 
 typedef std::function<int()> RandFunction;
 
-enum Distribution {FIXED, UNIFORM};
+enum Distribution {FIXED, UNIFORM, BINOMIAL};
 const std::unordered_map<std::string, Distribution> string_to_distribution({
     {"FIXED", Distribution::FIXED},
-    {"UNIFORM", Distribution::UNIFORM}
+    {"UNIFORM", Distribution::UNIFORM},
+    {"BINOMIAL", Distribution::BINOMIAL}
 });
 
-RandFunction get_random_function(
-    Distribution distribution, int max_value
-);
+RandFunction uniform_distribution_rand(int min_value, int max_value);
 
+RandFunction fixed_distribution(int value);
 }
 
 #endif

@@ -1,4 +1,5 @@
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <manager.h>
 #include <string>
@@ -7,75 +8,112 @@
 
 #include "execution_log.h"
 #include "graph_cut.h"
-#include "request_generator.h"
+#include "request_generation.h"
 #include "write.h"
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
 
-void generate_random_requests(
+std::vector<workload::Request> generate_single_data_requests(
     const toml_config& config, workload::Manager& manager
 ) {
-    auto request_generator = workload::RequestGenerator(manager.n_variables());
-
-    const auto single_data_spawn_chance = toml::find<int>(
-        config, "workload", "requests", "single_data_spawn_chance"
-    );
-    request_generator.set_single_data_spawn_chance(single_data_spawn_chance);
-
-    // Single data config
     const auto single_data_distribution_ = toml::find<std::string>(
         config, "workload", "requests", "single_data", "distribution_pattern"
     );
     auto single_data_distribution = rfunc::string_to_distribution.at(
         single_data_distribution_
     );
-    request_generator.single_data_request_distribution(
-        single_data_distribution
-    );
 
-    if (single_data_distribution != rfunc::FIXED) {
-        const auto n_requests = toml::find<int>(
+    rfunc::RandFunction data_rand;
+    int n_requests;
+    if (single_data_distribution == rfunc::UNIFORM) {
+        const auto n_requests_ = toml::find<int>(
             config, "workload", "requests", "single_data", "n_requests"
         );
-        request_generator.set_single_data_requests(n_requests);
-    } else {
+        n_requests = n_requests_;
+        data_rand = rfunc::uniform_distribution_rand(0, manager.n_variables()-1);
+
+        return workload::generate_single_data_requests(n_requests, data_rand);
+    } else if (single_data_distribution == rfunc::FIXED) {
         const auto requests_per_data = toml::find<int>(
             config, "workload", "requests", "single_data", "requests_per_data"
         );
-        request_generator.set_single_requests_per_data(requests_per_data);
+        n_requests = requests_per_data * manager.n_variables();
+        data_rand = rfunc::uniform_distribution_rand(0, n_requests);
+
+        return workload::generate_fixed_data_requests(
+            manager.n_variables(), requests_per_data
+        );
     }
 
-    // Multi data config
-    const auto multi_data_distribution_ = toml::find<std::string>(
-        config, "workload", "requests", "multi_data", "distribution_pattern"
-    );
-    auto multi_data_distribution = rfunc::string_to_distribution.at(
-        multi_data_distribution_
-    );
-    request_generator.multi_data_request_distribution(multi_data_distribution);
+}
 
+std::vector<workload::Request> generate_multi_data_requests(
+    const toml_config& config, workload::Manager& manager
+) {
     const auto n_requests = toml::find<int>(
         config, "workload", "requests", "multi_data", "n_requests"
     );
-    request_generator.set_multi_data_requests(n_requests);
+    const auto max_involved_data = toml::find<int>(
+        config, "workload", "requests", "multi_data",
+        "max_involved_data"
+    );
 
-    if (multi_data_distribution != rfunc::FIXED) {
-        const auto max_involved_data = toml::find<int>(
-            config, "workload", "requests", "multi_data",
-            "max_involved_data"
-        );
-        request_generator.set_max_involved_data(max_involved_data);
+    const auto size_distribution_ = toml::find<std::string>(
+        config, "workload", "requests", "multi_data", "size_distribution_pattern"
+    );
+    auto size_distribution = rfunc::string_to_distribution.at(
+        size_distribution_
+    );
+    rfunc::RandFunction size_rand;
+    if (size_distribution == rfunc::UNIFORM) {
+        size_rand = rfunc::uniform_distribution_rand(2, max_involved_data);
+    } else if (size_distribution == rfunc::FIXED) {
+        size_rand = rfunc::fixed_distribution(max_involved_data);
     }
 
-    request_generator.create_requests(manager);
+    const auto data_distribution_ = toml::find<std::string>(
+        config, "workload", "requests", "multi_data", "data_distribution_pattern"
+    );
+    auto data_distribution = rfunc::string_to_distribution.at(
+        data_distribution_
+    );
+    rfunc::RandFunction data_rand;
+    if (data_distribution == rfunc::UNIFORM) {
+        data_rand = rfunc::uniform_distribution_rand(2, max_involved_data);
+    }
+
+    return workload::generate_multi_data_requests(
+        n_requests,
+        manager.n_variables(),
+        data_rand,
+        size_rand
+    );
+}
+
+void generate_random_requests(
+    const toml_config& config, workload::Manager& manager
+) {
+    auto single_data_requests = generate_single_data_requests(config, manager);
+    auto multi_data_requests = generate_multi_data_requests(config, manager);
+
+    const auto single_data_pick_probability = toml::find<int>(
+        config, "workload", "requests", "single_data_pick_probability"
+    );
+    auto requests = workload::merge_requests(
+        single_data_requests,
+        multi_data_requests,
+        single_data_pick_probability
+    );
+
+    manager.set_requests(requests);
 }
 
 void import_requests(const toml_config& config, workload::Manager& manager) {
-    auto input_path = toml::find<std::string>(
-        config, "workload", "requests", "input_path"
+    auto import_path = toml::find<std::string>(
+        config, "workload", "requests", "import_path"
     );
-    manager.import_requests(input_path);
+    manager.import_requests(import_path);
 }
 
 workload::Manager create_manager(const toml_config& config) {

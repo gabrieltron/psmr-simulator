@@ -33,6 +33,7 @@ public:
     void add_request(Request request);
     ExecutionLog execute_requests();
     void repartition_data(int n_partitions);
+    void set_requests(std::vector<Request> requests);
 
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
@@ -42,9 +43,6 @@ public:
     PartitionScheme partiton_scheme();
 
 private:
-    std::vector<long int> distribute_rand_partitions(
-        rfunc::Distribution distribution, int n_partitions
-    );
     void update_access_graph(Request request);
 
     int n_variables_{0};
