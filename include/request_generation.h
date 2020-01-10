@@ -1,5 +1,5 @@
-#ifndef WORKLOAD_REQUEST_GENERATION_H
-#define WORKLOAD_REQUEST_GENERATION_H
+#ifndef WORKLOAD_REQUEST_GENERATOR_H
+#define WORKLOAD_REQUEST_GENERATOR_H
 
 #include <algorithm>
 #include <functional>

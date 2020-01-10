@@ -17,8 +17,14 @@ const std::unordered_map<std::string, Distribution> string_to_distribution({
 });
 
 RandFunction uniform_distribution_rand(int min_value, int max_value);
-
 RandFunction fixed_distribution(int value);
+RandFunction binomial_distribution(
+    int n_experiments, double success_probability
+);
+RandFunction ranged_binomial_distribution(
+    int min_value, int n_experiments, double success_probability
+);
+
 }
 
 #endif

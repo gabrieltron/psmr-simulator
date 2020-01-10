@@ -24,28 +24,39 @@ std::vector<workload::Request> generate_single_data_requests(
         single_data_distribution_
     );
 
-    rfunc::RandFunction data_rand;
-    int n_requests;
-    if (single_data_distribution == rfunc::UNIFORM) {
-        const auto n_requests_ = toml::find<int>(
-            config, "workload", "requests", "single_data", "n_requests"
-        );
-        n_requests = n_requests_;
-        data_rand = rfunc::uniform_distribution_rand(0, manager.n_variables()-1);
-
-        return workload::generate_single_data_requests(n_requests, data_rand);
-    } else if (single_data_distribution == rfunc::FIXED) {
+    if (single_data_distribution == rfunc::FIXED) {
         const auto requests_per_data = toml::find<int>(
             config, "workload", "requests", "single_data", "requests_per_data"
         );
-        n_requests = requests_per_data * manager.n_variables();
-        data_rand = rfunc::uniform_distribution_rand(0, n_requests);
 
         return workload::generate_fixed_data_requests(
             manager.n_variables(), requests_per_data
         );
-    }
+    } else {
+        const auto n_requests = toml::find<int>(
+            config, "workload", "requests", "single_data", "n_requests"
+        );
+        if (single_data_distribution == rfunc::UNIFORM) {
+            auto data_rand = rfunc::uniform_distribution_rand(
+                0, manager.n_variables()-1
+            );
 
+            return workload::generate_single_data_requests(
+                n_requests, data_rand
+            );
+        } else if (single_data_distribution == rfunc::BINOMIAL) {
+            const auto success_probability = toml::find<double>(
+                config, "workload", "requests", "single_data", "success_probability"
+            );
+            auto data_rand = rfunc::binomial_distribution(
+                manager.n_variables(), success_probability
+            );
+
+            return workload::generate_single_data_requests(
+                n_requests, data_rand
+            );
+        }
+    }
 }
 
 std::vector<workload::Request> generate_multi_data_requests(
@@ -53,6 +64,11 @@ std::vector<workload::Request> generate_multi_data_requests(
 ) {
     const auto n_requests = toml::find<int>(
         config, "workload", "requests", "multi_data", "n_requests"
+    );
+
+    const auto min_involved_data = toml::find<int>(
+        config, "workload", "requests", "multi_data",
+        "min_involved_data"
     );
     const auto max_involved_data = toml::find<int>(
         config, "workload", "requests", "multi_data",
@@ -67,9 +83,19 @@ std::vector<workload::Request> generate_multi_data_requests(
     );
     rfunc::RandFunction size_rand;
     if (size_distribution == rfunc::UNIFORM) {
-        size_rand = rfunc::uniform_distribution_rand(2, max_involved_data);
+        size_rand = rfunc::uniform_distribution_rand(
+            min_involved_data, max_involved_data
+        );
     } else if (size_distribution == rfunc::FIXED) {
         size_rand = rfunc::fixed_distribution(max_involved_data);
+    } else if (size_distribution == rfunc::BINOMIAL) {
+        const auto success_probability = toml::find<double>(
+            config, "workload", "requests", "multi_data",
+            "size_success_probability"
+        );
+        size_rand = rfunc::ranged_binomial_distribution(
+            min_involved_data, max_involved_data, success_probability
+        );
     }
 
     const auto data_distribution_ = toml::find<std::string>(
@@ -81,6 +107,14 @@ std::vector<workload::Request> generate_multi_data_requests(
     rfunc::RandFunction data_rand;
     if (data_distribution == rfunc::UNIFORM) {
         data_rand = rfunc::uniform_distribution_rand(2, max_involved_data);
+    } else if (data_distribution == rfunc::BINOMIAL) {
+        const auto success_probability = toml::find<double>(
+            config, "workload", "requests", "multi_data",
+            "data_success_probability"
+        );
+        data_rand = rfunc::binomial_distribution(
+            max_involved_data, success_probability
+        );
     }
 
     return workload::generate_multi_data_requests(
