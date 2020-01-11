@@ -29,7 +29,9 @@ void Manager::add_request(Request request) {
     requests_.push_back(request);
 }
 
-ExecutionLog Manager::execute_requests() {
+ExecutionLog Manager::execute_requests(
+    unsigned int repartition_interval /*= 0*/
+) {
     auto log = ExecutionLog(partition_scheme_.n_partitions());
 
     while (!requests_.empty()) {
@@ -54,6 +56,12 @@ ExecutionLog Manager::execute_requests() {
         }
 
         update_access_graph(request);
+        log.increase_processed_requests();
+        if (repartition_interval != 0 and
+            log.processed_requests() % repartition_interval == 0
+        ) {
+            repartition_data(partition_scheme_.n_partitions());
+        }
     }
 
     return log;

@@ -249,6 +249,24 @@ void export_data_partitions(
     output_stream.close();
 }
 
+workload::ExecutionLog execute_requests(
+    const toml_config& config, workload::Manager& manager
+) {
+    const auto should_repartition_during_execution = toml::find<bool>(
+        config, "execution", "repartition_during_execution"
+    );
+
+    if (should_repartition_during_execution) {
+        const auto repartition_interval = toml::find<int>(
+            config, "execution", "repartition_interval"
+        );
+
+        return manager.execute_requests(repartition_interval);
+    }
+
+    return manager.execute_requests();
+}
+
 int main(int argc, char* argv[]) {
     const auto config = toml::parse(argv[1]);
 
@@ -269,7 +287,7 @@ int main(int argc, char* argv[]) {
         export_requests(config, manager);
     }
 
-    auto execution_log = manager.execute_requests();
+    auto execution_log = execute_requests(config, manager);
 
     const auto should_export_workload_graph = toml::find<bool>(
         config, "output", "workload_graph", "export"

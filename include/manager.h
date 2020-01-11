@@ -31,7 +31,9 @@ public:
     Manager(int n_variables, int n_partitions);
 
     void add_request(Request request);
-    ExecutionLog execute_requests();
+    ExecutionLog execute_requests(
+        unsigned int repartition_interval = 0
+    );
     void repartition_data(int n_partitions);
     void set_requests(std::vector<Request> requests);
 

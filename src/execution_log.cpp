@@ -32,6 +32,10 @@ void ExecutionLog::increase_sync_counter() {
     sync_counter_++;
 }
 
+void ExecutionLog::increase_processed_requests() {
+    processed_requests_++;
+}
+
 int ExecutionLog::max_elapsed_time(std::unordered_set<int> partitions) {
     auto max = 0;
     for (auto partition : partitions) {
@@ -55,6 +59,10 @@ int ExecutionLog::makespan() {
 
 int ExecutionLog::n_syncs() {
     return sync_counter_;
+}
+
+int ExecutionLog::processed_requests() {
+    return processed_requests_;
 }
 
 std::unordered_map<int, int> ExecutionLog::idle_time() {
