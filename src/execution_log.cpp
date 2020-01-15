@@ -65,6 +65,10 @@ int ExecutionLog::processed_requests() {
     return processed_requests_;
 }
 
+int ExecutionLog::elapsed_time(int partition) {
+    return elapsed_time_[partition];
+}
+
 std::unordered_map<int, int> ExecutionLog::idle_time() {
     auto idle_time = idle_time_;
 

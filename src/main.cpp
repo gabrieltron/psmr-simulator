@@ -1,18 +1,25 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <manager.h>
 #include <string>
 #include <toml11/toml.hpp>
 #include <unordered_map>
 
+#include "cbase_manager.h"
 #include "execution_log.h"
 #include "graph_cut.h"
+#include "manager.h"
+#include "min_cut_manager.h"
 #include "request_generation.h"
 #include "write.h"
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
+enum ManagerType {MIN_CUT, CBASE};
+const std::unordered_map<std::string, ManagerType> string_to_manager({
+    {"MIN_CUT", ManagerType::MIN_CUT},
+    {"CBASE", ManagerType::CBASE},
+});
 
 std::vector<workload::Request> generate_single_data_requests(
     const toml_config& config, workload::Manager& manager
@@ -150,13 +157,24 @@ void import_requests(const toml_config& config, workload::Manager& manager) {
     manager.import_requests(import_path);
 }
 
-workload::Manager create_manager(const toml_config& config) {
+workload::MinCutManager create_min_cut_manager(const toml_config& config) {
     const auto n_variables = toml::find<int>(
         config, "workload", "n_variables"
     );
     const auto n_partitions = toml::find<int>(
         config, "workload", "initial_partitions", "n_partitions"
     );
+
+    auto repartition_interval = 0;
+    const auto should_repartition_during_execution = toml::find<bool>(
+        config, "execution", "repartition_during_execution"
+    );
+    if (should_repartition_during_execution) {
+        repartition_interval = toml::find<int>(
+            config, "execution", "repartition_interval"
+        );
+    }
+
     const auto should_import_partitions = toml::find<bool>(
         config, "workload", "initial_partitions", "import"
     );
@@ -169,10 +187,14 @@ workload::Manager create_manager(const toml_config& config) {
         auto data_partitions = toml::find<std::vector<long int>>(
             initial_partitions_file, "data_partitions"
         );
-        return workload::Manager(n_variables, n_partitions, data_partitions);
+        return workload::MinCutManager(
+            n_variables, n_partitions, repartition_interval, data_partitions
+        );
     }
 
-    return workload::Manager(n_variables, n_partitions);
+    return workload::MinCutManager(
+        n_variables, n_partitions, repartition_interval
+    );
 }
 
 void export_requests(const toml_config& config, workload::Manager& manager) {
@@ -252,25 +274,22 @@ void export_data_partitions(
 workload::ExecutionLog execute_requests(
     const toml_config& config, workload::Manager& manager
 ) {
-    const auto should_repartition_during_execution = toml::find<bool>(
-        config, "execution", "repartition_during_execution"
-    );
-
-    if (should_repartition_during_execution) {
-        const auto repartition_interval = toml::find<int>(
-            config, "execution", "repartition_interval"
-        );
-
-        return manager.execute_requests(repartition_interval);
-    }
-
     return manager.execute_requests();
 }
 
 int main(int argc, char* argv[]) {
     const auto config = toml::parse(argv[1]);
 
-    auto manager = create_manager(config);
+    const auto manager_type_ = toml::find<std::string>(
+        config, "execution", "manager"
+    );
+    const auto manager_type = string_to_manager[manager_type_];
+
+    Manager manager;
+    if (manager_type == ManagerType::MIN_CUT) {
+        manager = create_min_cut_manager(config);
+    }
+
     const auto should_import_requests = toml::find<bool>(
         config, "workload", "requests", "import_requests"
     );

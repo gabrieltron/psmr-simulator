@@ -21,6 +21,7 @@ public:
     int makespan();
     int n_syncs();
     int processed_requests();
+    int elapsed_time(int partition);
     std::unordered_map<int, int> idle_time();
     std::unordered_map<int, int> execution_time();
     std::unordered_map<int, int> syncs_with_n_partitions();

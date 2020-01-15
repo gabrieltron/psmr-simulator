@@ -19,6 +19,7 @@ public:
 
     void add_vertice(int id, int weight = 0);
     void add_edge(int from, int to, int weight = 0);
+    void remove_edge(int from, int to);
     bool are_connected(int vertice_a, int vertice_b);
     void increase_vertice_weight(int vertice);
     void increase_edge_weight(int from, int to);
@@ -28,11 +29,14 @@ public:
     int vertice_weight(int vertice);
     std::unordered_map<int, int> vertice_edges(int vertice);
     Vertex vertex();
+    int in_degree(int vertice);
+    std::unordered_map<int, int> in_degrees() const;
 
 private:
     Vertex vertex_;
     Edges edges_;
     int n_edges_{0};
+    std::unordered_map<int, int> in_degree_;
 };
 
 }

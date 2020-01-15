@@ -8,6 +8,7 @@ Graph::Graph(int n_vertex)
     for (auto i = 0; i < n_vertex; i++) {
         vertex_[i] = 0;
         edges_[i] = std::unordered_map<int, int>();
+        in_degree_[i] = 0;
     }
 }
 
@@ -21,7 +22,15 @@ void Graph::add_edge(int from, int to, int weight /*= 0*/) {
     }
 
     edges_[from][to] = weight;
+    in_degree_[to]++;
     n_edges_++;
+}
+
+void Graph::remove_edge(int from, int to) {
+    if (edges_[from].find(to) != edges_[from].end()) {
+        edges_[from].erase(to);
+        in_degree_[to]--;
+    }
 }
 
 void Graph::increase_vertice_weight(int vertice) {
@@ -54,6 +63,14 @@ std::unordered_map<int, int> Graph::vertice_edges(int vertice) {
 
 Vertex Graph::vertex() {
     return vertex_;
+}
+
+int Graph::in_degree(int vertice) {
+    return in_degree_[vertice];
+}
+
+std::unordered_map<int, int> Graph::in_degrees() const {
+    return in_degree_;
 }
 
 }
