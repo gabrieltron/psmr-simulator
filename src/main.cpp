@@ -58,7 +58,7 @@ std::vector<workload::Request> generate_single_data_requests(
                 config, "workload", "requests", "single_data", "success_probability"
             );
             auto data_rand = rfunc::binomial_distribution(
-                manager.n_variables(), success_probability
+                manager.n_variables()-1, success_probability
             );
 
             return workload::generate_single_data_requests(
@@ -115,14 +115,14 @@ std::vector<workload::Request> generate_multi_data_requests(
     );
     rfunc::RandFunction data_rand;
     if (data_distribution == rfunc::UNIFORM) {
-        data_rand = rfunc::uniform_distribution_rand(2, max_involved_data);
+        data_rand = rfunc::uniform_distribution_rand(2, manager.n_variables()-1);
     } else if (data_distribution == rfunc::BINOMIAL) {
         const auto success_probability = toml::find<double>(
             config, "workload", "requests", "multi_data",
             "data_success_probability"
         );
         data_rand = rfunc::binomial_distribution(
-            max_involved_data, success_probability
+            manager.n_variables()-1, success_probability
         );
     }
 
