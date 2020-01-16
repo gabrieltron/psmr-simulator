@@ -2,7 +2,8 @@
 
 namespace workload {
 
-CBaseManager::CBaseManager(int n_threads):
+CBaseManager::CBaseManager(int n_variables, int n_threads):
+    Manager{n_variables_},
     n_threads_{n_threads}
 {}
 
@@ -89,6 +90,12 @@ model::Graph CBaseManager::generate_dependency_graph() {
     }
 
     return dependency_graph;
+}
+
+void CBaseManager::export_data(std::string output_path) {
+    if (true){
+
+    }
 }
 
 }

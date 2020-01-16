@@ -1,7 +1,6 @@
 #ifndef WORKLOAD_MIN_CUT_MANAGER_H
 #define WORKLOAD_MIN_CUT_MANAGER_H
 
-#include <deque>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -10,12 +9,13 @@
 #include "execution_log.h"
 #include "graph.h"
 #include "graph_cut.h"
+#include "manager.h"
 #include "partition_scheme.h"
 #include "random.h"
 
 namespace workload {
 
-class MinCutManager : Manager {
+class MinCutManager : public Manager {
 public:
     MinCutManager(
         int n_variables,
@@ -36,11 +36,12 @@ public:
     model::Graph access_graph();
     PartitionScheme partiton_scheme();
 
+    void export_data(std::string output_path);
+
 private:
     void update_access_graph(Request request);
 
     int repartition_interval_;
-    std::deque<Request> requests_;
     PartitionScheme partition_scheme_;
     model::Graph access_graph_;
 };

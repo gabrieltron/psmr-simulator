@@ -1,6 +1,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <toml11/toml.hpp>
 #include <unordered_map>
@@ -12,6 +13,7 @@
 #include "min_cut_manager.h"
 #include "request_generation.h"
 #include "write.h"
+#include <memory>
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
@@ -157,10 +159,21 @@ void import_requests(const toml_config& config, workload::Manager& manager) {
     manager.import_requests(import_path);
 }
 
-workload::MinCutManager create_min_cut_manager(const toml_config& config) {
-    const auto n_variables = toml::find<int>(
-        config, "workload", "n_variables"
+std::unique_ptr<workload::CBaseManager> create_cbase_cut_manager(
+    const toml_config& config, int n_variables
+) {
+    const auto n_threads = toml::find<int>(
+        config, "execution", "n_threads"
     );
+
+    return std::make_unique<workload::CBaseManager>(
+        workload::CBaseManager(n_variables, n_threads)
+    );
+}
+
+std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
+    const toml_config& config, int n_variables
+) {
     const auto n_partitions = toml::find<int>(
         config, "workload", "initial_partitions", "n_partitions"
     );
@@ -187,13 +200,17 @@ workload::MinCutManager create_min_cut_manager(const toml_config& config) {
         auto data_partitions = toml::find<std::vector<long int>>(
             initial_partitions_file, "data_partitions"
         );
-        return workload::MinCutManager(
+        return std::make_unique<workload::MinCutManager>(
+            workload::MinCutManager(
             n_variables, n_partitions, repartition_interval, data_partitions
+            )
         );
     }
 
-    return workload::MinCutManager(
+    return std::make_unique<workload::MinCutManager>(
+        workload::MinCutManager(
         n_variables, n_partitions, repartition_interval
+        )
     );
 }
 
@@ -206,68 +223,15 @@ void export_requests(const toml_config& config, workload::Manager& manager) {
     ofs.close();
 }
 
-void export_workload_graph(const toml_config& config, workload::Manager& manager) {
-    const auto str_format = toml::find<std::string>(
-        config, "output", "workload_graph", "format"
-    );
-    auto format = output::string_to_format.at(str_format);
-    const auto path = toml::find<std::string>(
-        config, "output", "workload_graph", "path"
-    );
-    std::ofstream output_stream(path, std::ofstream::out);
-    auto graph = manager.access_graph();
-    output::write_graph(graph, format, output_stream);
-    output_stream.close();
-}
-
-void export_cut_info(workload::Manager& manager, std::ostream& output_stream) {
-    auto og_graph = manager.access_graph();
-    auto partition_scheme = manager.partiton_scheme();
-    output::write_cut_info(og_graph, partition_scheme, output_stream);
-}
-
 void export_execution_info(
-    workload::ExecutionLog& execution_log,
-    std::ostream& output_stream
-) {
-    output::write_log_info(execution_log, output_stream);
-}
-
-void export_execution_and_cut_info(
     const toml_config& config,
-    workload::Manager& manager,
     workload::ExecutionLog& execution_log
 ) {
     const auto output_path = toml::find<std::string>(
         config, "output", "info_path"
     );
     std::ofstream output_stream(output_path, std::ofstream::out);
-    export_execution_info(execution_log, output_stream);
-    export_cut_info(manager, output_stream);
-    output_stream.close();
-}
-
-void export_resulting_partition_graph(
-    const toml_config& config, workload::Manager& manager
-) {
-    const auto graph_output_path = toml::find<std::string>(
-        config, "output", "partition", "graph", "path"
-    );
-    auto graph = manager.partiton_scheme().graph_representation();
-    std::ofstream parition_graph_stream(graph_output_path, std::ofstream::out);
-    output::write_dot_format(graph, parition_graph_stream);
-    parition_graph_stream.close();
-}
-
-void export_data_partitions(
-    const toml_config& config, workload::PartitionScheme& partition_scheme
-) {
-    const auto output_path = toml::find<std::string>(
-        config, "output", "partition", "data_partitions", "path"
-    );
-    auto data_partitions = partition_scheme.data_partition_vector();
-    std::ofstream output_stream(output_path, std::ofstream::out);
-    output::write_data_partitions(data_partitions, output_stream);
+    output::write_log_info(execution_log, output_stream);
     output_stream.close();
 }
 
@@ -283,57 +247,43 @@ int main(int argc, char* argv[]) {
     const auto manager_type_ = toml::find<std::string>(
         config, "execution", "manager"
     );
-    const auto manager_type = string_to_manager[manager_type_];
+    const auto manager_type = string_to_manager.at(manager_type_);
 
-    Manager manager;
-    if (manager_type == ManagerType::MIN_CUT) {
-        manager = create_min_cut_manager(config);
-    }
+    const auto n_variables = toml::find<int>(
+        config, "workload", "n_variables"
+    );
+    auto manager = [&]() -> std::unique_ptr<workload::Manager>{
+        if (manager_type == ManagerType::MIN_CUT) {
+            return create_min_cut_manager(config, n_variables);
+        }
+
+        return create_cbase_cut_manager(config, n_variables);
+    }();
+
 
     const auto should_import_requests = toml::find<bool>(
         config, "workload", "requests", "import_requests"
     );
     if (should_import_requests) {
-        import_requests(config, manager);
+        import_requests(config, *manager);
     } else {
-        generate_random_requests(config, manager);
+        generate_random_requests(config, *manager);
     }
 
     const auto should_export_requests = toml::find<bool>(
         config, "output", "requests", "export"
     );
     if (should_export_requests) {
-        export_requests(config, manager);
+        export_requests(config, *manager);
     }
 
-    auto execution_log = execute_requests(config, manager);
+    auto execution_log = execute_requests(config, *manager);
+    export_execution_info(config, execution_log);
 
-    const auto should_export_workload_graph = toml::find<bool>(
-        config, "output", "workload_graph", "export"
+    const auto manager_output_path = toml::find<std::string>(
+        config, "output", "manager", "path"
     );
-    if (should_export_workload_graph) {
-        export_workload_graph(config, manager);
-    }
-    const auto n_partitions = toml::find<int>(
-        config, "cut", "n_partitions"
-    );
-    manager.repartition_data(n_partitions);
-    export_execution_and_cut_info(config, manager, execution_log);
-
-    const auto should_export_partition_graph = toml::find<bool>(
-        config, "output", "partition", "graph", "export"
-    );
-    if (should_export_partition_graph) {
-        export_resulting_partition_graph(config, manager);
-    }
-
-    const auto should_export_data_partitions = toml::find<bool>(
-        config, "output", "partition", "data_partitions", "export"
-    );
-    if (should_export_data_partitions) {
-        auto partition_scheme = manager.partiton_scheme();
-        export_data_partitions(config, partition_scheme);
-    }
+    manager->export_data(manager_output_path);
 
     return 0;
 }

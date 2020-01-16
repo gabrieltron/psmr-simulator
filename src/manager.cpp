@@ -2,6 +2,10 @@
 
 namespace workload {
 
+Manager::Manager(int n_variables):
+    n_variables_{n_variables}
+{}
+
 void Manager::add_request(Request request) {
     requests_.push_back(request);
 }
