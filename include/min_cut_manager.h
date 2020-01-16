@@ -2,6 +2,7 @@
 #define WORKLOAD_MIN_CUT_MANAGER_H
 
 #include <iostream>
+#include <metis.h>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -21,7 +22,7 @@ public:
         int n_variables,
         int n_partitions,
         int repartition_interval,
-        std::vector<long int> data_partition
+        std::vector<idx_t> data_partition
     );
     MinCutManager(
         int n_variables,

@@ -2,7 +2,7 @@
 
 namespace model {
 
-std::vector<long int> cut_graph(Graph& graph, idx_t n_partitions) {
+std::vector<idx_t> cut_graph(Graph& graph, idx_t n_partitions) {
     auto vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
     idx_t n_edges = n_vertice * (n_vertice - 1);

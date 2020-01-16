@@ -108,7 +108,7 @@ void write_log_info(
 }
 
 void write_data_partitions(
-    std::vector<long int> data_partitions,
+    std::vector<idx_t> data_partitions,
     std::ostream& output_stream
 ) {
     output_stream << "data_partitions = [ ";

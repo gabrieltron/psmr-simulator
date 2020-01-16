@@ -2,6 +2,7 @@
 #define OUTPUT_WRITE_TO_FILE_H
 
 #include <iostream>
+#include <metis.h>
 #include <string>
 #include <unordered_map>
 
@@ -33,7 +34,7 @@ void write_log_info(
     std::ostream& output_stream
 );
 void write_data_partitions(
-    std::vector<long int> data_partitions,
+    std::vector<idx_t> data_partitions,
     std::ostream& output_stream
 );
 

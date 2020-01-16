@@ -6,7 +6,7 @@ MinCutManager::MinCutManager(
     int n_variables,
     int n_partitions,
     int repartition_interval,
-    std::vector<long int> data_partition)
+    std::vector<idx_t> data_partition)
     :   Manager{n_variables},
         access_graph_{model::Graph(n_variables)},
         partition_scheme_{PartitionScheme(n_partitions, data_partition)}
@@ -21,7 +21,7 @@ MinCutManager::MinCutManager(
         access_graph_{model::Graph(n_variables)},
         repartition_interval_{repartition_interval}
 {
-    auto data_partition = std::vector<long int>();
+    auto data_partition = std::vector<idx_t>();
     auto current_partition = 0;
     for (auto i = 0; i < n_variables_; i++) {
         data_partition.push_back(current_partition);

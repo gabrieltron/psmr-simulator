@@ -2,6 +2,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <metis.h>
 #include <string>
 #include <toml11/toml.hpp>
 #include <unordered_map>
@@ -197,7 +198,7 @@ std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
             config, "workload", "initial_partitions", "path"
         );
         const auto initial_partitions_file = toml::parse(path);
-        auto data_partitions = toml::find<std::vector<long int>>(
+        auto data_partitions = toml::find<std::vector<idx_t>>(
             initial_partitions_file, "data_partitions"
         );
         return std::make_unique<workload::MinCutManager>(
