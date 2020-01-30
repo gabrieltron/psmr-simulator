@@ -236,12 +236,6 @@ void export_execution_info(
     output_stream.close();
 }
 
-workload::ExecutionLog execute_requests(
-    const toml_config& config, workload::Manager& manager
-) {
-    return manager.execute_requests();
-}
-
 int main(int argc, char* argv[]) {
     const auto config = toml::parse(argv[1]);
 
@@ -278,7 +272,7 @@ int main(int argc, char* argv[]) {
         export_requests(config, *manager);
     }
 
-    auto execution_log = execute_requests(config, *manager);
+    auto execution_log = manager->execute_requests();
     export_execution_info(config, execution_log);
 
     const auto manager_output_path = toml::find<std::string>(
