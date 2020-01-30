@@ -18,10 +18,12 @@ public:
     Graph(int n_vertex);
 
     void add_vertice(int id, int weight = 0);
+    void remove_vertice(int vertice_id);
     void add_edge(int from, int to, int weight = 0);
     void remove_edge(int from, int to);
     bool are_connected(int vertice_a, int vertice_b);
     void increase_vertice_weight(int vertice);
+    void set_vertice_weight(int vertice, int weight);
     void increase_edge_weight(int from, int to);
 
     std::size_t n_vertex();

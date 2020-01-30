@@ -1,9 +1,13 @@
 #include "cbase_manager.h"
 
+
+#include <iostream>
+
+using namespace std;
 namespace workload {
 
 CBaseManager::CBaseManager(int n_variables, int n_threads):
-    Manager{n_variables_},
+    Manager{n_variables},
     n_threads_{n_threads}
 {}
 
@@ -13,6 +17,7 @@ ExecutionLog CBaseManager::execute_requests() {
     auto threads_heap = initialize_threads_heap();
     auto font_heap = initialize_font_heap(graph);
 
+    auto counter = 0;
     while (!font_heap.empty()) {
         // choose request to execute
         auto p = font_heap.top();
@@ -35,7 +40,11 @@ ExecutionLog CBaseManager::execute_requests() {
         // update graph and add new ready requests to heap
         for (auto kv : graph.vertice_edges(vertice_id)) {
             auto neighbour = kv.first;
-            graph.increase_vertice_weight(neighbour);
+
+            auto new_neighbour_weight = graph.vertice_weight(vertice_id) + 1;
+            if (new_neighbour_weight > graph.vertice_weight(neighbour)) {
+                graph.set_vertice_weight(neighbour, new_neighbour_weight);
+            }
 
             graph.remove_edge(vertice_id, neighbour);
             if (graph.in_degree(neighbour) == 0) {
@@ -43,6 +52,7 @@ ExecutionLog CBaseManager::execute_requests() {
                 font_heap.push(p);
             }
         }
+        graph.remove_vertice(vertice_id);
 
         // update thread queue
         threads_heap.push(std::make_pair(log.elapsed_time(thread_id), thread_id));
@@ -81,8 +91,12 @@ model::Graph CBaseManager::generate_dependency_graph() {
         dependency_graph.add_vertice(vertex_counter);
 
         for (auto variable : request) {
-            auto neighbour = last_vertice_with_variable[variable];
-            dependency_graph.add_edge(vertex_counter, neighbour);
+            if (last_vertice_with_variable.find(variable) != last_vertice_with_variable.end()) {
+                auto neighbour = last_vertice_with_variable[variable];
+                if (!dependency_graph.are_connected(neighbour, vertex_counter)) {
+                    dependency_graph.add_edge(neighbour, vertex_counter);
+                }
+            }
             last_vertice_with_variable[variable] = vertex_counter;
         }
 

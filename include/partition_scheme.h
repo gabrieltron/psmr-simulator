@@ -17,21 +17,21 @@ public:
 
     PartitionScheme(
         int n_partitions,
-        std::vector<idx_t>& data_partitions
+        std::vector<int>& data_partitions
     );
 
     void update_partitions(
         int n_partitions,
-        const std::vector<idx_t>& data_partitions
+        const std::vector<int>& data_partitions
     );
     model::Graph graph_representation();
     Partitions partitions();
     int data_partition(int data);
-    std::vector<idx_t> data_partition_vector();
+    std::vector<int> data_partition_vector();
     int n_partitions();
 
 private:
-    std::vector<idx_t> data_partitions_;
+    std::vector<int> data_partitions_;
     Partitions partitions_;
 };
 

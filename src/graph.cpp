@@ -14,6 +14,13 @@ Graph::Graph(int n_vertex)
 
 void Graph::add_vertice(int id, int weight /*= 0*/) {
     vertex_[id] = weight;
+    in_degree_[id] = 0;
+}
+
+void Graph::remove_vertice(int vertice_id) {
+    vertex_.erase(vertice_id);
+    edges_.erase(vertice_id);
+    in_degree_.erase(vertice_id);
 }
 
 void Graph::add_edge(int from, int to, int weight /*= 0*/) {
@@ -39,6 +46,10 @@ void Graph::increase_vertice_weight(int vertice) {
 
 void Graph::increase_edge_weight(int from, int to) {
     edges_[from][to]++;
+}
+
+void Graph::set_vertice_weight(int vertice, int weight) {
+    vertex_[vertice] = weight;
 }
 
 bool Graph::are_connected(int vertice_a, int vertice_b) {

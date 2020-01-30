@@ -4,7 +4,7 @@ namespace workload {
 
 PartitionScheme::PartitionScheme(
     int n_partitions,
-    std::vector<idx_t>& data_partitions
+    std::vector<int>& data_partitions
 ) : data_partitions_{data_partitions}
 {
     update_partitions(n_partitions, data_partitions);
@@ -12,7 +12,7 @@ PartitionScheme::PartitionScheme(
 
 void PartitionScheme::update_partitions(
     int n_partitions,
-    const std::vector<idx_t>& data_partitions
+    const std::vector<int>& data_partitions
 ) {
     data_partitions_ = data_partitions;
     partitions_ = Partitions();
@@ -55,7 +55,7 @@ int PartitionScheme::data_partition(int data) {
     return data_partitions_[data];
 }
 
-std::vector<idx_t> PartitionScheme::data_partition_vector() {
+std::vector<int> PartitionScheme::data_partition_vector() {
     return data_partitions_;
 }
 

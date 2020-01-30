@@ -17,7 +17,11 @@
 
 namespace workload {
 
-typedef std::priority_queue<std::pair<int, int>> Heap;
+typedef std::priority_queue<
+    std::pair<int, int>,
+    std::vector<std::pair<int, int>>,
+    std::greater<std::pair<int, int>>
+> Heap;
 
 class CBaseManager : public Manager {
 public:
