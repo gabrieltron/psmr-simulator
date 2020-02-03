@@ -179,6 +179,11 @@ std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
         config, "workload", "initial_partitions", "n_partitions"
     );
 
+    const auto cut_method_name = toml::find<std::string>(
+        config, "execution", "cut_method"
+    );
+    const auto cut_method = model::string_to_cut_method.at(cut_method_name);
+
     auto repartition_interval = 0;
     const auto should_repartition_during_execution = toml::find<bool>(
         config, "execution", "repartition_during_execution"
@@ -203,14 +208,15 @@ std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
         );
         return std::make_unique<workload::MinCutManager>(
             workload::MinCutManager(
-            n_variables, n_partitions, repartition_interval, data_partitions
+                n_variables, n_partitions, repartition_interval, 
+                cut_method, data_partitions
             )
         );
     }
 
     return std::make_unique<workload::MinCutManager>(
         workload::MinCutManager(
-        n_variables, n_partitions, repartition_interval
+            n_variables, n_partitions, repartition_interval, cut_method
         )
     );
 }
@@ -254,7 +260,6 @@ int main(int argc, char* argv[]) {
 
         return create_cbase_cut_manager(config, n_variables);
     }();
-
 
     const auto should_import_requests = toml::find<bool>(
         config, "workload", "requests", "import_requests"

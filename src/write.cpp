@@ -64,18 +64,16 @@ void write_cut_info(
     workload::PartitionScheme& partition_scheme,
     std::ostream& output_stream
 ) {
-    auto weights = model::partitions_weight(graph, partition_scheme);
-    output_stream << "Partição | Peso Vértices | Vértices\n"; 
-    for (auto kv : partition_scheme.partitions()) {
-        auto i = kv.first;
-        auto data_set = kv.second;
-
-        output_stream << i << " | " << weights[i]; 
+    output_stream << "Partição | Peso Vértices | Vértices\n";
+    auto i = 0;
+    for (auto partition : partition_scheme.partitions()) {
+        output_stream << i << " | " << partition.weight(); 
         output_stream << " | ";
-        for (auto data : data_set) {
+        for (auto data : partition.vertex()) {
             output_stream << " " << data; 
         }
         output_stream << "\n";
+        i++;
     }
 }
 
@@ -108,11 +106,12 @@ void write_log_info(
 }
 
 void write_data_partitions(
-    std::vector<idx_t> data_partitions,
+    std::unordered_map<int, int> data_partitions,
     std::ostream& output_stream
 ) {
     output_stream << "data_partitions = [ ";
-    for (auto partition : data_partitions) {
+    for (auto kv : data_partitions) {
+        auto partition = kv.second;
         output_stream << partition << ", ";
     }
     output_stream << "]";

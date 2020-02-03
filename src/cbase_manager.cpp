@@ -1,6 +1,5 @@
 #include "cbase_manager.h"
 
-
 #include <iostream>
 
 using namespace std;

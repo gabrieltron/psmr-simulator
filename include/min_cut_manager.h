@@ -22,12 +22,14 @@ public:
         int n_variables,
         int n_partitions,
         int repartition_interval,
-        std::vector<idx_t> data_partition
+        model::CutMethod cut_method,
+        std::vector<int> data_partition
     );
     MinCutManager(
         int n_variables,
         int n_partitions,
-        int repartition_interval
+        int repartition_interval,
+        model::CutMethod cut_method
     );
 
     ExecutionLog execute_requests();
@@ -45,6 +47,7 @@ private:
     int repartition_interval_;
     PartitionScheme partition_scheme_;
     model::Graph access_graph_;
+    model::CutMethod cut_method_;
 };
 
 }

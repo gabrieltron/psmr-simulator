@@ -3,27 +3,36 @@
 namespace workload {
 
 PartitionScheme::PartitionScheme(
-    int n_partitions,
-    std::vector<int>& data_partitions
-) : data_partitions_{data_partitions}
+    std::vector<Partition>& partitions
+) : partitions_{partitions}
 {
-    update_partitions(n_partitions, data_partitions);
+    update_partitions(partitions);
 }
 
-void PartitionScheme::update_partitions(
-    int n_partitions,
-    const std::vector<int>& data_partitions
+PartitionScheme::PartitionScheme(
+    int n_partitions, std::vector<int>& data_partitions
 ) {
-    data_partitions_ = data_partitions;
-    partitions_ = Partitions();
-
     for (auto i = 0; i < n_partitions; i++) {
-        partitions_[i] = std::unordered_set<int>();
+        auto partition = Partition();
+        partitions_.push_back(partition);
     }
 
-    for (auto data = 0; data < data_partitions.size(); data++) {
-        auto partition = data_partitions[data];
-        partitions_[partition].insert(data);
+    for (auto i = 0; i < data_partitions.size(); i++) {
+        auto data = i;
+        auto data_partition = data_partitions[i];
+
+        partitions_[data_partition].insert(data, 0);
+        data_partitions_[data] = data_partition;
+    }
+}
+
+void PartitionScheme::update_partitions(std::vector<Partition>& partitions) {
+    partitions_ = partitions;
+
+    for (auto i = 0; i < partitions.size(); i++) {
+        for (auto vertice : partitions[i].vertex()) {
+            data_partitions_[vertice] = i;
+        }
     }
 }
 
@@ -34,7 +43,7 @@ model::Graph PartitionScheme::graph_representation() {
         auto partition = data_partitions_[data];
 
         graph.add_vertice(data);
-        for (auto neighbour: partitions_[partition]) {
+        for (auto neighbour: partitions_[partition].vertex()) {
             if (neighbour == data) {
                 continue;
             }
@@ -47,7 +56,7 @@ model::Graph PartitionScheme::graph_representation() {
     return graph;
 }
 
-Partitions PartitionScheme::partitions() {
+std::vector<Partition>& PartitionScheme::partitions() {
     return partitions_;
 }
 
@@ -55,7 +64,7 @@ int PartitionScheme::data_partition(int data) {
     return data_partitions_[data];
 }
 
-std::vector<int> PartitionScheme::data_partition_vector() {
+std::unordered_map<int, int> PartitionScheme::data_partition_map() {
     return data_partitions_;
 }
 

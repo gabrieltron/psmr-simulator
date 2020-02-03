@@ -34,7 +34,7 @@ void write_log_info(
     std::ostream& output_stream
 );
 void write_data_partitions(
-    std::vector<idx_t> data_partitions,
+    std::unordered_map<int, int>,
     std::ostream& output_stream
 );
 

@@ -15,9 +15,11 @@ Graph::Graph(int n_vertex)
 void Graph::add_vertice(int id, int weight /*= 0*/) {
     vertex_[id] = weight;
     in_degree_[id] = 0;
+    total_vertex_weight_ += weight;
 }
 
 void Graph::remove_vertice(int vertice_id) {
+    total_vertex_weight_ -= vertex_[vertice_id];
     vertex_.erase(vertice_id);
     edges_.erase(vertice_id);
     in_degree_.erase(vertice_id);
@@ -31,10 +33,12 @@ void Graph::add_edge(int from, int to, int weight /*= 0*/) {
     edges_[from][to] = weight;
     in_degree_[to]++;
     n_edges_++;
+    total_edges_weight_ += weight;
 }
 
 void Graph::remove_edge(int from, int to) {
     if (edges_[from].find(to) != edges_[from].end()) {
+        total_edges_weight_ -= edges_[from][to];
         edges_[from].erase(to);
         in_degree_[to]--;
     }
@@ -46,10 +50,13 @@ void Graph::increase_vertice_weight(int vertice) {
 
 void Graph::increase_edge_weight(int from, int to) {
     edges_[from][to]++;
+    total_edges_weight_++;
 }
 
 void Graph::set_vertice_weight(int vertice, int weight) {
+    total_vertex_weight_ -= vertex_[vertice];
     vertex_[vertice] = weight;
+    total_edges_weight_ += weight;
 }
 
 bool Graph::are_connected(int vertice_a, int vertice_b) {
@@ -68,11 +75,19 @@ int Graph::vertice_weight(int vertice) {
     return vertex_[vertice];
 }
 
-std::unordered_map<int, int> Graph::vertice_edges(int vertice) {
+int Graph::total_vertex_weight() {
+    return total_vertex_weight_;
+}
+
+int Graph::total_edges_weight() {
+    return total_edges_weight_;
+}
+
+std::unordered_map<int, int>& Graph::vertice_edges(int vertice) {
     return edges_[vertice];
 }
 
-Vertex Graph::vertex() {
+Vertex& Graph::vertex() {
     return vertex_;
 }
 

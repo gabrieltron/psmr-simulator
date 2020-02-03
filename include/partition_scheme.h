@@ -6,10 +6,9 @@
 #include <vector>
 
 #include "graph.h"
+#include "partition.h"
 
 namespace workload{
-
-typedef std::unordered_map<int, std::unordered_set<int>> Partitions;
 
 class PartitionScheme {
 public:
@@ -20,19 +19,20 @@ public:
         std::vector<int>& data_partitions
     );
 
-    void update_partitions(
-        int n_partitions,
-        const std::vector<int>& data_partitions
+    PartitionScheme(
+        std::vector<Partition>& partitions
     );
+
+    void update_partitions(std::vector<Partition>& partitions);
     model::Graph graph_representation();
-    Partitions partitions();
+    std::vector<Partition>& partitions();
     int data_partition(int data);
-    std::vector<int> data_partition_vector();
+    std::unordered_map<int, int> data_partition_map();
     int n_partitions();
 
 private:
-    std::vector<int> data_partitions_;
-    Partitions partitions_;
+    std::unordered_map<int, int> data_partitions_;
+    std::vector<Partition> partitions_;
 };
 
 }

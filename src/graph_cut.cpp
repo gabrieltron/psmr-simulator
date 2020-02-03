@@ -2,7 +2,17 @@
 
 namespace model {
 
-std::vector<idx_t> cut_graph(Graph& graph, idx_t n_partitions) {
+workload::PartitionScheme cut_graph(
+    CutMethod cut_method, Graph& graph, idx_t n_partitions
+) {
+    if (cut_method == METIS) {
+        return metis_cut(graph, n_partitions);
+    } else {
+        return fennel_cut(graph, n_partitions);
+    }
+}
+
+workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
     auto vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
     idx_t n_edges = n_vertice * (n_vertice - 1);
@@ -45,27 +55,96 @@ std::vector<idx_t> cut_graph(Graph& graph, idx_t n_partitions) {
         NULL, options, &objval, vertex_partitions.data()
     );
     
-    return vertex_partitions;
-}
+    auto partitions = std::vector<workload::Partition>();
+    for (auto i = 0; i < n_partitions; i++) {
+        auto partition = workload::Partition();
+        partitions.push_back(partition);
+    }
+    for (auto i = 0; i < vertex_partitions.size(); i++) {
+        auto vertice = i;
+        auto vertice_partition = vertex_partitions[vertice];
 
-std::unordered_map<int, int> partitions_weight(
-    Graph& graph, workload::PartitionScheme& partition_scheme
-) {
-    auto partition_weight = std::unordered_map<int, int>();
-    auto partitions = partition_scheme.partitions();
-    for (auto kv: partitions) {
-        auto partition_id = kv.first;
-        auto partition_vertex = kv.second;
-
-        partition_weight[partition_id] = 0;
-
-        for (auto vertice: partition_vertex) {
-            auto weight = graph.vertice_weight(vertice);
-            partition_weight[partition_id] += weight;
-        } 
+        auto vertice_weight = graph.vertice_weight(vertice);
+        partitions[vertice_partition].insert(vertice, vertice_weight);
     }
 
-    return partition_weight;
+    return workload::PartitionScheme(partitions);
+;
+}
+
+workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
+    auto partitions = std::vector<workload::Partition>();
+    for (auto i = 0; i < n_partitions; i++) {
+        auto partition = workload::Partition();
+        partitions.push_back(partition);
+    }
+
+    for (auto kv: graph.vertex()) {
+        auto vertice = kv.first;
+        auto partition = fennel_vertice_partition(graph, vertice, partitions);
+        partitions[partition].insert(vertice, graph.vertice_weight(vertice));
+    }
+
+    return workload::PartitionScheme(partitions);
+}
+
+int fennel_inter_cost(
+    std::unordered_map<int, int>& edges, workload::Partition& partition
+) {
+    auto cost = 0;
+    for (auto kv : edges) {
+        auto vertice = kv.first;
+        auto weight = kv.second;
+        if (partition.vertex().find(vertice) != partition.vertex().end()) {
+            cost += weight;
+        }
+    }
+    return cost;
+}
+
+int biggest_value_index(std::vector<double>& partitions_score) {
+    auto index = 0;
+    auto biggest = partitions_score[0];
+    for (auto i = 1; i < partitions_score.size(); i++) {
+        if (partitions_score[i] > biggest) {
+            biggest = partitions_score[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+int fennel_vertice_partition(
+    Graph& graph, int vertice, std::vector<workload::Partition>& partitions
+) {
+    const auto gamma = 3 / 2.0;
+    const auto edges_weight = graph.total_edges_weight();
+    const auto vertex_weight = graph.total_vertex_weight();
+    const auto alpha =
+        edges_weight * pow(partitions.size(), (gamma - 1)) / pow(graph.total_vertex_weight(), gamma);
+
+    double biggest_score = -DBL_MAX;
+    auto id = 0;
+    auto designated_partition = 0;
+    for (auto partition : partitions) {
+        auto partition_weight = partition.weight();
+        auto edges = graph.vertice_edges(vertice);
+
+        auto inter_cost = fennel_inter_cost(edges, partition);
+        auto intra_cost = 
+            (pow(partition.weight() + graph.vertice_weight(vertice), gamma));
+        intra_cost -= pow(partition.weight(), gamma);
+        intra_cost *= gamma;
+        auto score = inter_cost - intra_cost;
+
+        if (score > biggest_score) {
+            biggest_score = score;
+            designated_partition = id;
+        }
+        id++;
+    }
+
+    return designated_partition;
 }
 
 }

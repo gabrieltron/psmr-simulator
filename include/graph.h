@@ -28,9 +28,11 @@ public:
 
     std::size_t n_vertex();
     std::size_t n_edges();
+    int total_vertex_weight();
+    int total_edges_weight();
     int vertice_weight(int vertice);
-    std::unordered_map<int, int> vertice_edges(int vertice);
-    Vertex vertex();
+    std::unordered_map<int, int>& vertice_edges(int vertice);
+    Vertex& vertex();
     int in_degree(int vertice);
     std::unordered_map<int, int> in_degrees() const;
 
@@ -38,6 +40,8 @@ private:
     Vertex vertex_;
     Edges edges_;
     int n_edges_{0};
+    int total_edges_weight_{0};
+    int total_vertex_weight_{0};
     std::unordered_map<int, int> in_degree_;
 };
 
