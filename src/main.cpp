@@ -242,6 +242,7 @@ void export_execution_info(
     output_stream.close();
 }
 
+/*
 int main(int argc, char* argv[]) {
     const auto config = toml::parse(argv[1]);
 
@@ -287,3 +288,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+*/

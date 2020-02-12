@@ -1,4 +1,4 @@
-#include "graph_cut.h"
+#include "min_cut.h"
 
 namespace model {
 
@@ -91,11 +91,12 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
 int fennel_inter_cost(
     std::unordered_map<int, int>& edges, workload::Partition& partition
 ) {
+    auto vertex = partition.vertex();
     auto cost = 0;
     for (auto kv : edges) {
         auto vertice = kv.first;
         auto weight = kv.second;
-        if (partition.vertex().find(vertice) != partition.vertex().end()) {
+        if (vertex.find(vertice) != vertex.end()) {
             cost += weight;
         }
     }
@@ -145,6 +146,23 @@ int fennel_vertice_partition(
     }
 
     return designated_partition;
+}
+
+workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions) {
+    auto partitions = std::vector<workload::Partition>();
+    for (auto i = 0; i < n_partitions; i++) {
+        auto partition = workload::Partition();
+        partitions.push_back(partition);
+    }
+
+    auto costs = std::vector<std::pair<double, int>>();
+    for (auto node : tree.nodes()) {
+        auto cost = (double)tree.parent_edge_weight(node) / tree.node_weight(node);
+        auto p = std::make_pair(cost, node);
+    }
+    std::sort(costs.begin(), costs.end());
+
+    
 }
 
 }
