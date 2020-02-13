@@ -122,7 +122,7 @@ int fennel_vertice_partition(
     const auto edges_weight = graph.total_edges_weight();
     const auto vertex_weight = graph.total_vertex_weight();
     const auto alpha =
-        edges_weight * pow(partitions.size(), (gamma - 1)) / pow(graph.total_vertex_weight(), gamma);
+        edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
 
     double biggest_score = -DBL_MAX;
     auto id = 0;
@@ -133,8 +133,8 @@ int fennel_vertice_partition(
 
         auto inter_cost = fennel_inter_cost(edges, partition);
         auto intra_cost = 
-            (pow(partition.weight() + graph.vertice_weight(vertice), gamma));
-        intra_cost -= pow(partition.weight(), gamma);
+            (std::pow(partition.weight() + graph.vertice_weight(vertice), gamma));
+        intra_cost -= std::pow(partition.weight(), gamma);
         intra_cost *= gamma;
         auto score = inter_cost - intra_cost;
 
@@ -155,14 +155,65 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
         partitions.push_back(partition);
     }
 
-    auto costs = std::vector<std::pair<double, int>>();
-    for (auto node : tree.nodes()) {
-        auto cost = (double)tree.parent_edge_weight(node) / tree.node_weight(node);
-        auto p = std::make_pair(cost, node);
-    }
-    std::sort(costs.begin(), costs.end());
+    auto detatched_ids = std::vector<std::pair<double, int>>();
+    auto nodes = std::vector<std::pair<int, int>>();
 
+    for (auto kv : tree.vertex()) {
+        auto vertice = kv.first;
+        auto weight = kv.second;
+
+        if (tree.is_detatched(vertice)) {
+            auto p = std::make_pair(weight, vertice);
+            detatched_ids.push_back(p);
+        } else {
+            auto parent = tree.parent(vertice);
+            auto cost = (double) tree.edge_weight(vertice, parent) / weight;
+            auto p = std::make_pair(cost, vertice);
+            nodes.push_back(p);
+        }
+    }
+
+    std::sort(detatched_ids.begin(), detatched_ids.end());
+    std::sort(nodes.rbegin(), nodes.rend());
     
+    auto total_weight = tree.total_vertex_weight();
+    auto ideal_weight_dist = (double)total_weight / n_partitions;
+    auto max_weight = ceil(ideal_weight_dist * 1.1);
+    auto min_weight = floor(ideal_weight_dist * 0.9);
+
+    auto used_ids = std::unordered_set<int>();
+    for (auto partition : partitions) {
+        for (auto kv : nodes) {
+            auto node = kv.second;
+            if (used_ids.find(node) != used_ids.end()) {
+                continue;
+            }
+
+            if (partition.weight() + tree.vertice_weight(node) < max_weight) {
+                for (auto id : tree.ids_in_node(node)) {
+                    partition.insert(id);
+                }
+                partition.increase_weight(tree.vertice_weight(node));
+                used_ids.insert(node);
+                tree.unpropagate_weight(node);
+            }
+        }
+    }
+
+    for (auto partition : partitions) {
+        for (auto kv : detatched_ids) {
+            auto id = kv.second;
+            if (used_ids.find(id) != used_ids.end()) {
+                continue;
+            }
+            if (partition.weight() + tree.vertice_weight(id) < max_weight) {
+                partition.insert(id, tree.vertice_weight(id));
+                used_ids.insert(id);
+            }
+        }
+    }
+
+    return partitions;
 }
 
 }

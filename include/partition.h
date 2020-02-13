@@ -9,7 +9,8 @@ class Partition {
 public:
     Partition() = default;
 
-    void insert(int vertice, int weight);
+    void insert(int vertice, int weight = 0);
+    void increase_weight(int value);
     int weight();
     std::unordered_set<int>& vertex();
 

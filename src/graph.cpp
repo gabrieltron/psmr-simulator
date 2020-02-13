@@ -44,13 +44,13 @@ void Graph::remove_edge(int from, int to) {
     }
 }
 
-void Graph::increase_vertice_weight(int vertice) {
-    vertex_[vertice]++;
+void Graph::increase_vertice_weight(int vertice, int value /*=1*/) {
+    vertex_[vertice] += value;
 }
 
-void Graph::increase_edge_weight(int from, int to) {
-    edges_[from][to]++;
-    total_edges_weight_++;
+void Graph::increase_edge_weight(int from, int to, int value /*=1*/) {
+    edges_[from][to] += value;
+    total_edges_weight_ += value;
 }
 
 void Graph::set_vertice_weight(int vertice, int weight) {
@@ -73,6 +73,10 @@ std::size_t Graph::n_edges() {
 
 int Graph::vertice_weight(int vertice) {
     return vertex_[vertice];
+}
+
+int Graph::edge_weight(int from, int to) {
+    return edges_[from][to];
 }
 
 int Graph::total_vertex_weight() {

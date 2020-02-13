@@ -8,7 +8,7 @@
 
 #include "execution_log.h"
 #include "graph.h"
-#include "graph_cut.h"
+#include "min_cut.h"
 #include "partition_scheme.h"
 
 namespace output {
