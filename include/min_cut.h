@@ -33,13 +33,14 @@ workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions);
 
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions);
 int fennel_inter_cost(
-    std::unordered_map<int, int>& edges,
+    const std::unordered_map<int, int>& edges,
     workload::Partition& partition
 );
 int fennel_vertice_partition(
     Graph& graph,
     int vertice,
-    std::vector<workload::Partition>& partitions
+    std::vector<workload::Partition>& partitions,
+    double gamma
 );
 int biggest_value_index(std::vector<double>& partitions_score);
 

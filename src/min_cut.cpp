@@ -79,9 +79,16 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
         partitions.push_back(partition);
     }
 
+    const auto edges_weight = graph.total_edges_weight();
+    const auto vertex_weight = graph.total_vertex_weight();
+    const auto gamma = 3 / 2.0;
+    const auto alpha =
+        edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
+
     for (auto kv: graph.vertex()) {
         auto vertice = kv.first;
-        auto partition = fennel_vertice_partition(graph, vertice, partitions);
+        //std::cout << "Analizing vertice " << vertice << "\n";
+        auto partition = fennel_vertice_partition(graph, vertice, partitions, gamma);
         partitions[partition].insert(vertice, graph.vertice_weight(vertice));
     }
 
@@ -89,9 +96,9 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
 }
 
 int fennel_inter_cost(
-    std::unordered_map<int, int>& edges, workload::Partition& partition
+    const std::unordered_map<int, int>& edges, workload::Partition& partition
 ) {
-    auto vertex = partition.vertex();
+    auto& vertex = partition.vertex();
     auto cost = 0;
     for (auto kv : edges) {
         auto vertice = kv.first;
@@ -116,20 +123,15 @@ int biggest_value_index(std::vector<double>& partitions_score) {
 }
 
 int fennel_vertice_partition(
-    Graph& graph, int vertice, std::vector<workload::Partition>& partitions
+    Graph& graph, int vertice, std::vector<workload::Partition>& partitions,
+    double gamma
 ) {
-    const auto gamma = 3 / 2.0;
-    const auto edges_weight = graph.total_edges_weight();
-    const auto vertex_weight = graph.total_vertex_weight();
-    const auto alpha =
-        edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
-
     double biggest_score = -DBL_MAX;
     auto id = 0;
     auto designated_partition = 0;
     for (auto partition : partitions) {
         auto partition_weight = partition.weight();
-        auto edges = graph.vertice_edges(vertice);
+        auto& edges = graph.vertice_edges(vertice);
 
         auto inter_cost = fennel_inter_cost(edges, partition);
         auto intra_cost = 

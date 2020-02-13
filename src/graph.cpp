@@ -87,7 +87,7 @@ int Graph::total_edges_weight() {
     return total_edges_weight_;
 }
 
-std::unordered_map<int, int>& Graph::vertice_edges(int vertice) {
+const std::unordered_map<int, int>& Graph::vertice_edges(int vertice) {
     return edges_[vertice];
 }
 

@@ -32,7 +32,7 @@ public:
     int total_edges_weight();
     int vertice_weight(int vertice);
     int edge_weight(int from, int to);
-    std::unordered_map<int, int>& vertice_edges(int vertice);
+    const std::unordered_map<int, int>& vertice_edges(int vertice);
     Vertex& vertex();
     int in_degree(int vertice);
     std::unordered_map<int, int> in_degrees() const;

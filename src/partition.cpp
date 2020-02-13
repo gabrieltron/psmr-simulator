@@ -15,7 +15,7 @@ void Partition::insert(int vertice, int weight /*= 0*/) {
     weight_ += weight;
 }
 
-std::unordered_set<int>& Partition::vertex() {
+const std::unordered_set<int>& Partition::vertex() {
     return vertex_;
 }
 

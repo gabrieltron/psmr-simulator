@@ -95,10 +95,12 @@ void MinCutManager::update_access_graph(Request request) {
 }
 
 void MinCutManager::repartition_data(int n_partitions) {
+    std::cout << "Repartioning data\n";
     auto data_partitions = model::cut_graph(
         cut_method_, access_graph_, n_partitions
     );
     partition_scheme_ = data_partitions;
+    std::cout << "Data repartitioned\n";
 }
 
 void MinCutManager::export_data(std::string output_path) {
