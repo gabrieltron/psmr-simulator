@@ -1,5 +1,8 @@
 #include "min_cut.h"
 
+#include <iostream>
+using namespace std;
+
 namespace model {
 
 workload::PartitionScheme cut_graph(
@@ -172,20 +175,26 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
             auto cost = (double) tree.edge_weight(vertice, parent) / weight;
             auto p = std::make_pair(cost, vertice);
             nodes.push_back(p);
+            cout << "Node " << vertice << " has cost " << cost << endl;
         }
     }
 
-    std::sort(detatched_ids.begin(), detatched_ids.end());
-    std::sort(nodes.rbegin(), nodes.rend());
+    std::sort(nodes.begin(), nodes.end());
+    std::sort(detatched_ids.rbegin(), detatched_ids.rend());
     
     auto total_weight = tree.total_vertex_weight();
     auto ideal_weight_dist = (double)total_weight / n_partitions;
     auto max_weight = ceil(ideal_weight_dist * 1.1);
     auto min_weight = floor(ideal_weight_dist * 0.9);
 
+    cout << "total weight " << total_weight << endl;
+    cout << "ideal " << ideal_weight_dist << endl;
+    cout << "max weight " << max_weight << endl;
+    cout << "min weight " << min_weight << endl;
+
     auto used_ids = std::unordered_set<int>();
-    for (auto partition : partitions) {
-        for (auto kv : nodes) {
+    for (auto& partition : partitions) {
+        for (auto& kv : nodes) {
             auto node = kv.second;
             if (used_ids.find(node) != used_ids.end()) {
                 continue;

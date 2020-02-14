@@ -16,6 +16,7 @@ typedef std::pair<int, int> Edge;
 class SpanningTree : public Graph {
 public:
     SpanningTree() = default;
+    SpanningTree(int n_ids);
 
     void add_edge(Edge edge, int weight = 1);
     void increase_node_weight(int node, int value);

@@ -22,32 +22,25 @@ public:
         int n_variables,
         int n_partitions,
         int repartition_interval,
-        model::CutMethod cut_method,
         std::vector<int> data_partition
     );
     MinCutManager(
         int n_variables,
         int n_partitions,
-        int repartition_interval,
-        model::CutMethod cut_method
+        int repartition_interval
     );
 
     ExecutionLog execute_requests();
-    void repartition_data(int n_partitions);
+    virtual void repartition_data(int n_partitions) = 0;
 
-    int n_variables();
-    model::Graph access_graph();
     PartitionScheme partiton_scheme();
-
     void export_data(std::string output_path);
 
-private:
-    void update_access_graph(Request request);
+protected:
+    virtual void update_access_structure(Request request) = 0;
 
     int repartition_interval_;
     PartitionScheme partition_scheme_;
-    model::Graph access_graph_;
-    model::CutMethod cut_method_;
 };
 
 }

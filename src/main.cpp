@@ -9,10 +9,12 @@
 
 #include "cbase_manager.h"
 #include "execution_log.h"
+#include "graph_cut_manager.h"
 #include "min_cut.h"
 #include "manager.h"
 #include "min_cut_manager.h"
 #include "request_generation.h"
+#include "tree_cut_manager.h"
 #include "write.h"
 #include <memory>
 
@@ -22,6 +24,12 @@ enum ManagerType {MIN_CUT, CBASE};
 const std::unordered_map<std::string, ManagerType> string_to_manager({
     {"MIN_CUT", ManagerType::MIN_CUT},
     {"CBASE", ManagerType::CBASE},
+});
+
+enum CutDataStructure {GRAPH, SPANNING_TREE};
+const std::unordered_map<std::string, CutDataStructure> string_to_structure({
+    {"GRAPH", CutDataStructure::GRAPH},
+    {"SPANNING_TREE", CutDataStructure::SPANNING_TREE},
 });
 
 std::vector<workload::Request> generate_single_data_requests(
@@ -172,17 +180,61 @@ std::unique_ptr<workload::CBaseManager> create_cbase_cut_manager(
     );
 }
 
-std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
+std::unique_ptr<workload::GraphCutManager> create_graph_cut_manager(
     const toml_config& config, int n_variables
 ) {
     const auto n_partitions = toml::find<int>(
         config, "workload", "initial_partitions", "n_partitions"
     );
 
+    auto repartition_interval = 0;
+    const auto should_repartition_during_execution = toml::find<bool>(
+        config, "execution", "repartition_during_execution"
+    );
+    if (should_repartition_during_execution) {
+        repartition_interval = toml::find<int>(
+            config, "execution", "repartition_interval"
+        );
+    }
+
+    const auto should_import_partitions = toml::find<bool>(
+        config, "workload", "initial_partitions", "import"
+    );
+
     const auto cut_method_name = toml::find<std::string>(
         config, "execution", "cut_method"
     );
     const auto cut_method = model::string_to_cut_method.at(cut_method_name);
+
+    if (should_import_partitions) {
+        const auto path = toml::find<std::string>(
+            config, "workload", "initial_partitions", "path"
+        );
+        const auto initial_partitions_file = toml::parse(path);
+        auto data_partitions = toml::find<std::vector<idx_t>>(
+            initial_partitions_file, "data_partitions"
+        );
+        return std::make_unique<workload::GraphCutManager>(
+            workload::GraphCutManager(
+                n_variables, n_partitions, repartition_interval, 
+                data_partitions, cut_method
+            )
+        );
+    }
+
+    return std::make_unique<workload::GraphCutManager>(
+        workload::GraphCutManager(
+            n_variables, n_partitions, repartition_interval, cut_method
+        )
+    );
+}
+
+std::unique_ptr<workload::TreeCutManager> create_tree_cut_manager(
+    const toml_config& config, int n_variables
+) {
+    const auto n_partitions = toml::find<int>(
+        config, "workload", "initial_partitions", "n_partitions"
+    );
 
     auto repartition_interval = 0;
     const auto should_repartition_during_execution = toml::find<bool>(
@@ -206,19 +258,35 @@ std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
         auto data_partitions = toml::find<std::vector<idx_t>>(
             initial_partitions_file, "data_partitions"
         );
-        return std::make_unique<workload::MinCutManager>(
-            workload::MinCutManager(
+        return std::make_unique<workload::TreeCutManager>(
+            workload::TreeCutManager(
                 n_variables, n_partitions, repartition_interval, 
-                cut_method, data_partitions
+                data_partitions
             )
         );
     }
 
-    return std::make_unique<workload::MinCutManager>(
-        workload::MinCutManager(
-            n_variables, n_partitions, repartition_interval, cut_method
+    return std::make_unique<workload::TreeCutManager>(
+        workload::TreeCutManager(
+            n_variables, n_partitions, repartition_interval
         )
     );
+}
+
+std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
+    const toml_config& config, int n_variables
+) {
+
+    const auto data_structure_name = toml::find<std::string>(
+        config, "execution", "data_structure"
+    );
+    const auto data_structure = string_to_structure.at(data_structure_name);
+
+    if (data_structure == CutDataStructure::GRAPH) {
+        return create_graph_cut_manager(config, n_variables);
+    } else {
+        return create_tree_cut_manager(config, n_variables);
+    }
 }
 
 void export_requests(const toml_config& config, workload::Manager& manager) {
@@ -241,7 +309,7 @@ void export_execution_info(
     output::write_log_info(execution_log, output_stream);
     output_stream.close();
 }
-
+/*
 int main(int argc, char* argv[]) {
     const auto config = toml::parse(argv[1]);
 
@@ -287,3 +355,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+*/

@@ -2,6 +2,10 @@
 
 namespace model {
 
+SpanningTree::SpanningTree(int n_ids)
+    : Graph{n_ids}
+{}
+
 void SpanningTree::increase_node_weight(int node, int value) {
     auto current_node = node;
     while (current_node != -1) {

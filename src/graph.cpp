@@ -45,6 +45,7 @@ void Graph::remove_edge(int from, int to) {
 }
 
 void Graph::increase_vertice_weight(int vertice, int value /*=1*/) {
+    total_vertex_weight_ += value;
     vertex_[vertice] += value;
 }
 
