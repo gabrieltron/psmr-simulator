@@ -1,8 +1,5 @@
 #include "cbase_manager.h"
 
-#include <iostream>
-
-using namespace std;
 namespace workload {
 
 CBaseManager::CBaseManager(int n_variables, int n_threads):

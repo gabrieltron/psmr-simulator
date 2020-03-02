@@ -10,6 +10,7 @@
 #include "graph.h"
 #include "min_cut.h"
 #include "partition_scheme.h"
+#include "spanning_tree.h"
 
 namespace output {
 
@@ -35,6 +36,10 @@ void write_log_info(
 );
 void write_data_partitions(
     std::unordered_map<int, int>,
+    std::ostream& output_stream
+);
+void write_spanning_tree(
+    const model::SpanningTree& tree,
     std::ostream& output_stream
 );
 

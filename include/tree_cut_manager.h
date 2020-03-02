@@ -23,8 +23,9 @@ public:
         int repartition_interval
     );
 
-    model::SpanningTree access_tree();
+    const model::SpanningTree& access_tree();
     void repartition_data(int n_partitions);
+    void export_data(std::string output_path);
 
 private:
     void update_access_structure(Request request);

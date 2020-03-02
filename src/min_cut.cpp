@@ -33,7 +33,7 @@ workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
         auto n_neighbours = graph.vertice_edges(vertice).size();
         x_edges.push_back(last_edge_index + n_neighbours);
 
-        for (auto vk: graph.vertice_edges(vertice)) {
+        for (auto& vk: graph.vertice_edges(vertice)) {
             auto neighbour = vk.first;
             auto weight = vk.second;
             edges.push_back(neighbour);
@@ -69,7 +69,6 @@ workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
     }
 
     return workload::PartitionScheme(partitions);
-;
 }
 
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
@@ -85,9 +84,8 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
     const auto alpha =
         edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
 
-    for (auto kv: graph.vertex()) {
+    for (auto& kv: graph.vertex()) {
         auto vertice = kv.first;
-        //std::cout << "Analizing vertice " << vertice << "\n";
         auto partition = fennel_vertice_partition(graph, vertice, partitions, gamma);
         partitions[partition].insert(vertice, graph.vertice_weight(vertice));
     }
@@ -100,7 +98,7 @@ int fennel_inter_cost(
 ) {
     auto& vertex = partition.vertex();
     auto cost = 0;
-    for (auto kv : edges) {
+    for (auto& kv : edges) {
         auto vertice = kv.first;
         auto weight = kv.second;
         if (vertex.find(vertice) != vertex.end()) {
@@ -129,7 +127,7 @@ int fennel_vertice_partition(
     double biggest_score = -DBL_MAX;
     auto id = 0;
     auto designated_partition = 0;
-    for (auto partition : partitions) {
+    for (auto& partition : partitions) {
         auto partition_weight = partition.weight();
         auto& edges = graph.vertice_edges(vertice);
 
@@ -150,9 +148,9 @@ int fennel_vertice_partition(
     return designated_partition;
 }
 
-workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions) {
+workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions) {
     auto partitions = std::vector<workload::Partition>();
-    for (auto i = 0; i < n_partitions; i++) {
+    for (auto i = 0; i < n_partitions-1; i++) {
         auto partition = workload::Partition();
         partitions.push_back(partition);
     }
@@ -160,14 +158,14 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
     auto detatched_ids = std::vector<std::pair<double, int>>();
     auto nodes = std::vector<std::pair<int, int>>();
 
-    for (auto kv : tree.vertex()) {
+    for (auto& kv : tree.vertex()) {
         auto vertice = kv.first;
         auto weight = kv.second;
 
         if (tree.is_detatched(vertice)) {
             auto p = std::make_pair(weight, vertice);
             detatched_ids.push_back(p);
-        } else {
+        } else if (not tree.is_inside_node(vertice)) {
             auto parent = tree.parent(vertice);
             auto cost = (double) tree.edge_weight(vertice, parent) / weight;
             auto p = std::make_pair(cost, vertice);
@@ -190,7 +188,6 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
             if (used_ids.find(node) != used_ids.end()) {
                 continue;
             }
-
             if (partition.weight() + tree.vertice_weight(node) < max_weight) {
                 for (auto id : tree.ids_in_node(node)) {
                     partition.insert(id);
@@ -199,11 +196,13 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
                 used_ids.insert(node);
                 tree.unpropagate_weight(node);
             }
+            if (partition.weight() >= min_weight) {
+                break;
+            }
         }
     }
-
-    for (auto partition : partitions) {
-        for (auto kv : detatched_ids) {
+    for (auto& partition : partitions) {
+        for (auto& kv : detatched_ids) {
             auto id = kv.second;
             if (used_ids.find(id) != used_ids.end()) {
                 continue;
@@ -212,9 +211,36 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions
                 partition.insert(id, tree.vertice_weight(id));
                 used_ids.insert(id);
             }
+            if (partition.weight() >= min_weight) {
+                break;
+            }
         }
     }
 
+    auto final_partition = workload::Partition();
+    for (auto& kv : nodes) {
+        auto node = kv.second;
+        if (used_ids.find(node) != used_ids.end()) {
+            continue;
+        }
+        
+        for (auto id : tree.ids_in_node(node)) {
+            final_partition.insert(id);
+        }
+        final_partition.increase_weight(tree.vertice_weight(node));
+        used_ids.insert(node);
+        tree.unpropagate_weight(node);
+    }
+    for (auto& kv : detatched_ids) {
+        auto id = kv.second;
+        if (used_ids.find(id) != used_ids.end()) {
+            continue;
+        }
+        final_partition.insert(id, tree.vertice_weight(id));
+        used_ids.insert(id);
+    }
+
+    partitions.push_back(std::move(final_partition));
     return partitions;
 }
 

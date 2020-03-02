@@ -117,4 +117,23 @@ void write_data_partitions(
     output_stream << "]";
 }
 
+void write_spanning_tree(
+    const model::SpanningTree& tree,
+    std::ostream& output_stream
+) {
+    for (auto& kv : tree.ids_in_nodes()) {
+        auto node_id = kv.first;
+        auto& ids = kv.second;
+
+        output_stream << "Supernode " << node_id << "\n";
+        output_stream << "Weight: " << tree.vertice_weight(node_id) << " ";
+        output_stream << "Parent: " << tree.parent(node_id) << "\n";
+        output_stream << "Ids: ";
+        for (auto id : ids) {
+            output_stream << id << " ";
+        }
+        output_stream << "\n\n";
+    }
+}
+
 }

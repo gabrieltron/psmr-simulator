@@ -44,7 +44,7 @@ int fennel_vertice_partition(
 );
 int biggest_value_index(std::vector<double>& partitions_score);
 
-workload::PartitionScheme spanning_tree_cut(SpanningTree& tree, int n_partitions);
+workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions);
 
 }
 

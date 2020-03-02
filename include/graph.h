@@ -30,7 +30,7 @@ public:
     std::size_t n_edges();
     int total_vertex_weight();
     int total_edges_weight();
-    int vertice_weight(int vertice);
+    int vertice_weight(int vertice) const;
     int edge_weight(int from, int to);
     const std::unordered_map<int, int>& vertice_edges(int vertice);
     Vertex& vertex();

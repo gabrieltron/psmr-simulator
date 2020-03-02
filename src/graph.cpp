@@ -72,8 +72,8 @@ std::size_t Graph::n_edges() {
     return n_edges_;
 }
 
-int Graph::vertice_weight(int vertice) {
-    return vertex_[vertice];
+int Graph::vertice_weight(int vertice) const {
+    return vertex_.at(vertice);
 }
 
 int Graph::edge_weight(int from, int to) {
