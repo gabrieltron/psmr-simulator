@@ -6,7 +6,7 @@ TreeCutManager::TreeCutManager(
     int n_variables,
     int n_partitions,
     int repartition_interval,
-    std::vector<idx_t> data_partition
+    std::vector<int> data_partition
     ) : MinCutManager{
             n_variables, n_partitions,
             repartition_interval, data_partition

@@ -26,10 +26,10 @@ const std::unordered_map<std::string, CutMethod> string_to_cut_method({
 const double MAX_IMBALANCE = 1.03;
 
 workload::PartitionScheme cut_graph(
-    CutMethod cut_method, Graph& graph, idx_t n_partitions
+    CutMethod cut_method, Graph& graph, int n_partitions
 );
 
-workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions);
+workload::PartitionScheme metis_cut(Graph& graph, int n_partitions);
 
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions);
 int fennel_inter_cost(

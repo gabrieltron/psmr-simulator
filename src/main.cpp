@@ -211,12 +211,12 @@ std::unique_ptr<workload::GraphCutManager> create_graph_cut_manager(
             config, "workload", "initial_partitions", "path"
         );
         const auto initial_partitions_file = toml::parse(path);
-        auto data_partitions = toml::find<std::vector<idx_t>>(
+        auto data_partitions = toml::find<std::vector<int>>(
             initial_partitions_file, "data_partitions"
         );
         return std::make_unique<workload::GraphCutManager>(
             workload::GraphCutManager(
-                n_variables, n_partitions, repartition_interval, 
+                n_variables, n_partitions, repartition_interval,
                 data_partitions, cut_method
             )
         );
@@ -255,12 +255,12 @@ std::unique_ptr<workload::TreeCutManager> create_tree_cut_manager(
             config, "workload", "initial_partitions", "path"
         );
         const auto initial_partitions_file = toml::parse(path);
-        auto data_partitions = toml::find<std::vector<idx_t>>(
+        auto data_partitions = toml::find<std::vector<int>>(
             initial_partitions_file, "data_partitions"
         );
         return std::make_unique<workload::TreeCutManager>(
             workload::TreeCutManager(
-                n_variables, n_partitions, repartition_interval, 
+                n_variables, n_partitions, repartition_interval,
                 data_partitions
             )
         );

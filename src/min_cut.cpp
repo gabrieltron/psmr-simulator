@@ -3,7 +3,7 @@
 namespace model {
 
 workload::PartitionScheme cut_graph(
-    CutMethod cut_method, Graph& graph, idx_t n_partitions
+    CutMethod cut_method, Graph& graph, int n_partitions
 ) {
     if (cut_method == METIS) {
         return metis_cut(graph, n_partitions);
@@ -54,7 +54,7 @@ workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
         vertice_weight.data(), NULL, edges_weight.data(), &n_partitions, NULL,
         NULL, options, &objval, vertex_partitions.data()
     );
-    
+
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions; i++) {
         auto partition = workload::Partition();
@@ -132,7 +132,7 @@ int fennel_vertice_partition(
         auto& edges = graph.vertice_edges(vertice);
 
         auto inter_cost = fennel_inter_cost(edges, partition);
-        auto intra_cost = 
+        auto intra_cost =
             (std::pow(partition.weight() + graph.vertice_weight(vertice), gamma));
         intra_cost -= std::pow(partition.weight(), gamma);
         intra_cost *= gamma;
@@ -175,7 +175,7 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions)
 
     std::sort(nodes.begin(), nodes.end());
     std::sort(detatched_ids.rbegin(), detatched_ids.rend());
-    
+
     auto total_weight = tree.total_vertex_weight();
     auto ideal_weight_dist = (double)total_weight / n_partitions;
     auto max_weight = ceil(ideal_weight_dist * 1.1);
@@ -223,7 +223,7 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions)
         if (used_ids.find(node) != used_ids.end()) {
             continue;
         }
-        
+
         for (auto id : tree.ids_in_node(node)) {
             final_partition.insert(id);
         }

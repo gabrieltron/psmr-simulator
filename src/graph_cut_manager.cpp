@@ -6,7 +6,7 @@ GraphCutManager::GraphCutManager(
     int n_variables,
     int n_partitions,
     int repartition_interval,
-    std::vector<idx_t> data_partition,
+    std::vector<int> data_partition,
     model::CutMethod cut_method)
     :   MinCutManager{
             n_variables, n_partitions,
