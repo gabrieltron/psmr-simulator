@@ -20,7 +20,7 @@ void write_metis_format(model::Graph& graph, std::ostream& output_stream) {
             output_stream << " " << neighbour;
             output_stream << " " << edge_weight;
         }
-    } 
+    }
 }
 
 void write_dot_format(model::Graph& graph, std::ostream& output_stream) {
@@ -67,10 +67,10 @@ void write_cut_info(
     output_stream << "Partição | Peso Vértices | Vértices\n";
     auto i = 0;
     for (auto partition : partition_scheme.partitions()) {
-        output_stream << i << " | " << partition.weight(); 
+        output_stream << i << " | " << partition.weight();
         output_stream << " | ";
-        for (auto data : partition.vertex()) {
-            output_stream << " " << data; 
+        for (auto data : partition.data()) {
+            output_stream << " " << data;
         }
         output_stream << "\n";
         i++;

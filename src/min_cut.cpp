@@ -1,16 +1,10 @@
 #include "min_cut.h"
 
-namespace model {
+#include <iostream>
 
-workload::PartitionScheme cut_graph(
-    CutMethod cut_method, Graph& graph, int n_partitions
-) {
-    if (cut_method == METIS) {
-        return metis_cut(graph, n_partitions);
-    } else {
-        return fennel_cut(graph, n_partitions);
-    }
-}
+using namespace std;
+
+namespace model {
 
 workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
     auto vertex = graph.vertex();
@@ -93,10 +87,34 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
     return workload::PartitionScheme(partitions);
 }
 
+workload::PartitionScheme refennel_cut(
+    Graph& graph, workload::PartitionScheme& old_scheme
+) {
+    cout << "refenelling" << endl;
+    const auto edges_weight = graph.total_edges_weight();
+    const auto vertex_weight = graph.total_vertex_weight();
+    const auto gamma = 3 / 2.0;
+    const auto alpha =
+        edges_weight * std::pow(old_scheme.n_partitions(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
+
+    for (auto& kv: graph.vertex()) {
+        auto vertice = kv.first;
+        auto new_partition = fennel_vertice_partition(
+            graph, vertice, old_scheme.partitions(), gamma
+        );
+        auto old_partition = old_scheme.data_partition(vertice);
+        old_scheme.remove_data(vertice);
+        old_scheme.add_data(vertice, new_partition, graph.vertice_weight(vertice));
+    }
+
+    return std::move(old_scheme);
+
+}
+
 int fennel_inter_cost(
     const std::unordered_map<int, int>& edges, workload::Partition& partition
 ) {
-    auto& vertex = partition.vertex();
+    auto& vertex = partition.data();
     auto cost = 0;
     for (auto& kv : edges) {
         auto vertice = kv.first;
@@ -192,7 +210,7 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions)
                 for (auto id : tree.ids_in_node(node)) {
                     partition.insert(id);
                 }
-                partition.increase_weight(tree.vertice_weight(node));
+                partition.increase_weight(node, tree.vertice_weight(node));
                 used_ids.insert(node);
                 tree.unpropagate_weight(node);
             }
@@ -227,7 +245,7 @@ workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions)
         for (auto id : tree.ids_in_node(node)) {
             final_partition.insert(id);
         }
-        final_partition.increase_weight(tree.vertice_weight(node));
+        final_partition.increase_weight(node, tree.vertice_weight(node));
         used_ids.insert(node);
         tree.unpropagate_weight(node);
     }

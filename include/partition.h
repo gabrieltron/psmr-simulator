@@ -1,6 +1,7 @@
 #ifndef MODEL_PARTITION_H
 #define MODEL_PARTITION_H
 
+#include <unordered_map>
 #include <unordered_set>
 
 namespace workload {
@@ -9,14 +10,16 @@ class Partition {
 public:
     Partition() = default;
 
-    void insert(int vertice, int weight = 0);
-    void increase_weight(int value);
+    void insert(int data, int weight = 0);
+    void remove(int data);
+    void increase_weight(int data, int weight);
     int weight();
-    const std::unordered_set<int>& vertex();
+    const std::unordered_set<int>& data();
 
 private:
-    int weight_ = 0;
-    std::unordered_set<int> vertex_;
+    int total_weight_ = 0;
+    std::unordered_set<int> data_set_;
+    std::unordered_map<int, int> weight_;
 };
 
 }

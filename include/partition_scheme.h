@@ -23,6 +23,8 @@ public:
         std::vector<Partition>& partitions
     );
 
+    void add_data(int data, int partition, int data_size);
+    void remove_data(int data);
     void update_partitions(std::vector<Partition>& partitions);
     model::Graph graph_representation();
     std::vector<Partition>& partitions();

@@ -2,21 +2,29 @@
 
 namespace workload {
 
-void Partition::increase_weight(int value) {
-    weight_ += value;
+void Partition::increase_weight(int data, int weight) {
+    weight_[data] += weight;
+    total_weight_ += weight;
 }
 
 int Partition::weight() {
-    return weight_; 
+    return total_weight_;
 }
 
-void Partition::insert(int vertice, int weight /*= 0*/) {
-    vertex_.insert(vertice);
-    weight_ += weight;
+void Partition::insert(int data, int weight /*= 0*/) {
+    data_set_.insert(data);
+    weight_[data] = weight;
+    total_weight_ += weight;
 }
 
-const std::unordered_set<int>& Partition::vertex() {
-    return vertex_;
+void Partition::remove(int data) {
+    data_set_.erase(data);
+    total_weight_ -= weight_[data];
+    weight_.erase(data);
+}
+
+const std::unordered_set<int>& Partition::data() {
+    return data_set_;
 }
 
 }

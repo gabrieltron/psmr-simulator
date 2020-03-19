@@ -18,20 +18,20 @@
 
 namespace model {
 
-enum CutMethod {METIS, FENNEL};
+enum CutMethod {METIS, FENNEL, REFENNEL};
 const std::unordered_map<std::string, CutMethod> string_to_cut_method({
     {"METIS", METIS},
-    {"FENNEL", FENNEL}
+    {"FENNEL", FENNEL},
+    {"REFENNEL", REFENNEL}
 });
 const double MAX_IMBALANCE = 1.03;
-
-workload::PartitionScheme cut_graph(
-    CutMethod cut_method, Graph& graph, int n_partitions
-);
 
 workload::PartitionScheme metis_cut(Graph& graph, int n_partitions);
 
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions);
+workload::PartitionScheme refennel_cut(
+    Graph& graph, workload::PartitionScheme& old_partition
+);
 int fennel_inter_cost(
     const std::unordered_map<int, int>& edges,
     workload::Partition& partition

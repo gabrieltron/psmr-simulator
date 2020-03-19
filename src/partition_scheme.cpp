@@ -30,10 +30,19 @@ void PartitionScheme::update_partitions(std::vector<Partition>& partitions) {
     partitions_ = partitions;
 
     for (auto i = 0; i < partitions.size(); i++) {
-        for (auto vertice : partitions[i].vertex()) {
+        for (auto vertice : partitions[i].data()) {
             data_partitions_[vertice] = i;
         }
     }
+}
+
+void PartitionScheme::add_data(int data, int partition, int data_size) {
+    partitions_[partition].insert(data, data_size);
+}
+
+void PartitionScheme::remove_data(int data) {
+    auto data_partition = data_partitions_[data];
+    partitions_[data_partition].remove(data);
 }
 
 model::Graph PartitionScheme::graph_representation() {
@@ -43,7 +52,7 @@ model::Graph PartitionScheme::graph_representation() {
         auto partition = data_partitions_[data];
 
         graph.add_vertice(data);
-        for (auto neighbour: partitions_[partition].vertex()) {
+        for (auto neighbour: partitions_[partition].data()) {
             if (neighbour == data) {
                 continue;
             }

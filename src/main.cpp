@@ -20,6 +20,8 @@
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
+using namespace std;
+
 enum ManagerType {MIN_CUT, CBASE};
 const std::unordered_map<std::string, ManagerType> string_to_manager({
     {"MIN_CUT", ManagerType::MIN_CUT},
@@ -332,6 +334,7 @@ int main(int argc, char* argv[]) {
     const auto should_import_requests = toml::find<bool>(
         config, "workload", "requests", "import_requests"
     );
+    cout << "importing requests" << endl;
     if (should_import_requests) {
         import_requests(config, *manager);
     } else {
@@ -345,6 +348,7 @@ int main(int argc, char* argv[]) {
         export_requests(config, *manager);
     }
 
+    cout << "executing" << endl;
     auto execution_log = manager->execute_requests();
     export_execution_info(config, execution_log);
 
