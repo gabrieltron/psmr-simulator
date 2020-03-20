@@ -60,6 +60,10 @@ void Graph::set_vertice_weight(int vertice, int weight) {
     total_edges_weight_ += weight;
 }
 
+bool Graph::exist_vertice(int vertice) {
+    return vertex_.find(vertice) != vertex_.end();
+}
+
 bool Graph::are_connected(int vertice_a, int vertice_b) {
     return edges_[vertice_a].find(vertice_b) != edges_[vertice_a].end();
 }

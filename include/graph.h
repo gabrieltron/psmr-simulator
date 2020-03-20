@@ -21,6 +21,7 @@ public:
     void remove_vertice(int vertice_id);
     void add_edge(int from, int to, int weight = 0);
     void remove_edge(int from, int to);
+    bool exist_vertice(int vertice);
     bool are_connected(int vertice_a, int vertice_b);
     void increase_vertice_weight(int vertice, int value = 1);
     void set_vertice_weight(int vertice, int weight);

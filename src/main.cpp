@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "cbase_manager.h"
+#include "early_min_cut_manager.h"
 #include "execution_log.h"
 #include "graph_cut_manager.h"
 #include "min_cut.h"
@@ -22,10 +23,11 @@ typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_confi
 
 using namespace std;
 
-enum ManagerType {MIN_CUT, CBASE};
+enum ManagerType {MIN_CUT, CBASE, EARLY_MIN_CUT};
 const std::unordered_map<std::string, ManagerType> string_to_manager({
     {"MIN_CUT", ManagerType::MIN_CUT},
     {"CBASE", ManagerType::CBASE},
+    {"EARLY_MIN_CUT", EARLY_MIN_CUT}
 });
 
 enum CutDataStructure {GRAPH, SPANNING_TREE};
@@ -291,6 +293,21 @@ std::unique_ptr<workload::MinCutManager> create_min_cut_manager(
     }
 }
 
+std::unique_ptr<workload::EarlyMinCutManager> create_early_min_cut_manager(
+    const toml_config& config, int n_variables
+) {
+    const auto repartition_interval = toml::find<int>(
+        config, "execution", "repartition_interval"
+    );
+    const auto n_partitions = toml::find<int>(
+        config, "workload", "initial_partitions", "n_partitions"
+    );
+
+    return std::make_unique<workload::EarlyMinCutManager>(
+        workload::EarlyMinCutManager(n_variables, n_partitions, repartition_interval)
+    );
+}
+
 void export_requests(const toml_config& config, workload::Manager& manager) {
     const auto output_path = toml::find<std::string>(
         config, "output", "requests", "path"
@@ -326,6 +343,8 @@ int main(int argc, char* argv[]) {
     auto manager = [&]() -> std::unique_ptr<workload::Manager>{
         if (manager_type == ManagerType::MIN_CUT) {
             return create_min_cut_manager(config, n_variables);
+        } else if (manager_type == EARLY_MIN_CUT) {
+            return create_early_min_cut_manager(config, n_variables);
         }
 
         return create_cbase_cut_manager(config, n_variables);
@@ -334,7 +353,6 @@ int main(int argc, char* argv[]) {
     const auto should_import_requests = toml::find<bool>(
         config, "workload", "requests", "import_requests"
     );
-    cout << "importing requests" << endl;
     if (should_import_requests) {
         import_requests(config, *manager);
     } else {
@@ -348,7 +366,6 @@ int main(int argc, char* argv[]) {
         export_requests(config, *manager);
     }
 
-    cout << "executing" << endl;
     auto execution_log = manager->execute_requests();
     export_execution_info(config, execution_log);
 
