@@ -1,9 +1,5 @@
 #include "min_cut.h"
 
-#include <iostream>
-
-using namespace std;
-
 namespace model {
 
 workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
@@ -90,7 +86,6 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
 workload::PartitionScheme refennel_cut(
     Graph& graph, workload::PartitionScheme& old_scheme
 ) {
-    cout << "refenelling" << endl;
     const auto edges_weight = graph.total_edges_weight();
     const auto vertex_weight = graph.total_vertex_weight();
     const auto gamma = 3 / 2.0;

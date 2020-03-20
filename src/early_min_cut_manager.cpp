@@ -1,9 +1,5 @@
 #include "early_min_cut_manager.h"
 
-#include <iostream>
-
-using namespace std;
-
 namespace workload {
 
 EarlyMinCutManager::EarlyMinCutManager(

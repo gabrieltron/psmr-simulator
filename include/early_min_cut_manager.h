@@ -1,7 +1,6 @@
 #ifndef WORKLOAD_EARLY_MIN_CUT_MANAGER_H
 #define WORKLOAD_EARLY_MIN_CUT_MANAGER_H
 
-#include <iostream>
 #include <metis.h>
 #include <string>
 #include <unordered_map>

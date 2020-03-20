@@ -1,9 +1,5 @@
 #include "min_cut_manager.h"
 
-#include <iostream>
-
-using namespace std;
-
 namespace workload {
 
 MinCutManager::MinCutManager(

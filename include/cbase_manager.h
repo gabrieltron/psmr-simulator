@@ -2,7 +2,6 @@
 #define WORKLOAD_CBASE_MANAGER_H
 
 #include <deque>
-#include <iostream>
 #include <queue>
 #include <string>
 #include <unordered_map>

@@ -1,7 +1,6 @@
 #ifndef MODEL_SPANNING_TREE_H
 #define MODEL_SPANNING_TREE_H
 
-#include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
