@@ -85,14 +85,16 @@ void write_log_info(
     output_stream << "Makespan: " << makespan << "\n";
     output_stream << "Execution time | Idle Time | Idle percentage\n";
     auto execution_time = execution_log.execution_time();
-    auto idle_time = execution_log.idle_time();
+    auto idle_time = execution_log.idle_time_per_partition();
     for (auto i = 0; i < execution_time.size(); i++) {
         output_stream << i << ": " << execution_time[i] << " | ";
         output_stream << idle_time[i] << " | ";
         auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
         output_stream << idle_percentage << "%\n";
     }
-
+    auto average_idle_time =
+        (double) execution_log.idle_time() / execution_log.n_threads();
+    output_stream << "Average idle time: " << average_idle_time << "\n";
     output_stream << "\n";
 
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";

@@ -57,6 +57,10 @@ int ExecutionLog::makespan() {
     return longest_time;
 }
 
+int ExecutionLog::n_threads() {
+    return elapsed_time_.size();
+}
+
 int ExecutionLog::n_syncs() {
     return sync_counter_;
 }
@@ -69,7 +73,16 @@ int ExecutionLog::elapsed_time(int partition) {
     return elapsed_time_[partition];
 }
 
-std::unordered_map<int, int> ExecutionLog::idle_time() {
+int ExecutionLog::idle_time() {
+    auto total_time = 0;
+    for (auto kv : idle_time_) {
+        auto time = kv.second;
+        total_time += time;
+    }
+    return total_time;
+}
+
+std::unordered_map<int, int> ExecutionLog::idle_time_per_partition() {
     auto idle_time = idle_time_;
 
     for (auto kv: idle_time_) {

@@ -19,10 +19,12 @@ public:
     int max_elapsed_time(std::unordered_set<int> requests);
 
     int makespan();
+    int n_threads();
     int n_syncs();
     int processed_requests();
     int elapsed_time(int partition);
-    std::unordered_map<int, int> idle_time();
+    int idle_time();
+    std::unordered_map<int, int> idle_time_per_partition();
     std::unordered_map<int, int> execution_time();
     std::unordered_map<int, int> syncs_with_n_partitions();
 
