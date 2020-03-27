@@ -191,15 +191,9 @@ std::unique_ptr<workload::GraphCutManager> create_graph_cut_manager(
         config, "workload", "initial_partitions", "n_partitions"
     );
 
-    auto repartition_interval = 0;
-    const auto should_repartition_during_execution = toml::find<bool>(
-        config, "execution", "repartition_during_execution"
+    const auto repartition_interval = toml::find<int>(
+        config, "execution", "repartition_interval"
     );
-    if (should_repartition_during_execution) {
-        repartition_interval = toml::find<int>(
-            config, "execution", "repartition_interval"
-        );
-    }
 
     const auto should_import_partitions = toml::find<bool>(
         config, "workload", "initial_partitions", "import"
@@ -364,6 +358,13 @@ int main(int argc, char* argv[]) {
     );
     if (should_export_requests) {
         export_requests(config, *manager);
+    }
+
+    const auto should_execute_requests = toml::find<bool>(
+        config, "execution", "execute_requests"
+    );
+    if (not should_execute_requests) {
+        return 0;
     }
 
     auto execution_log = manager->execute_requests();
