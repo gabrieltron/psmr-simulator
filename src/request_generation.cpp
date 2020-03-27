@@ -46,7 +46,7 @@ std::vector<Request> generate_multi_data_requests(
         for (auto j = 0; j < request_size; j++) {
             auto data = data_rand();
             while (request.find(data) != request.end()) {
-                data = (data + 1) % n_variables;
+                data = data_rand();
             }
             request.insert(data);
         }
