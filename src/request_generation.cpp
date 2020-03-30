@@ -68,6 +68,9 @@ std::vector<Request> merge_requests(
 ) {
     auto shuffled_requests = std::vector<Request>();
     auto rand = rfunc::uniform_distribution_rand(1, 100);
+    std::reverse(single_data_requests.begin(), single_data_requests.end());
+    std::reverse(multi_data_requests.begin(), multi_data_requests.end());
+
     while (!single_data_requests.empty() and !multi_data_requests.empty()) {
         auto random_value = rand();
 

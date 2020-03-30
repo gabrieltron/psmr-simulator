@@ -1,6 +1,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <math.h>
 #include <memory>
 #include <metis.h>
 #include <string>
@@ -17,7 +18,6 @@
 #include "request_generation.h"
 #include "tree_cut_manager.h"
 #include "write.h"
-#include <memory>
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 
@@ -39,112 +39,134 @@ const std::unordered_map<std::string, CutDataStructure> string_to_structure({
 std::vector<workload::Request> generate_single_data_requests(
     const toml_config& config, workload::Manager& manager
 ) {
-    const auto single_data_distribution_ = toml::find<std::string>(
+    const auto single_data_distributions = toml::find<std::vector<std::string>>(
         config, "workload", "requests", "single_data", "distribution_pattern"
     );
-    auto single_data_distribution = rfunc::string_to_distribution.at(
-        single_data_distribution_
+    const auto n_requests = toml::find<std::vector<int>>(
+        config, "workload", "requests", "single_data", "n_requests"
     );
 
-    if (single_data_distribution == rfunc::FIXED) {
-        const auto requests_per_data = toml::find<int>(
-            config, "workload", "requests", "single_data", "requests_per_data"
+    auto requests = std::vector<workload::Request>();
+    auto binomial_counter = 0;
+    for (auto i = 0; i < n_requests.size(); i++) {
+        auto current_distribution_ = single_data_distributions[i];
+        auto current_distribution = rfunc::string_to_distribution.at(
+            current_distribution_
         );
 
-        return workload::generate_fixed_data_requests(
-            manager.n_variables(), requests_per_data
-        );
-    } else {
-        const auto n_requests = toml::find<int>(
-            config, "workload", "requests", "single_data", "n_requests"
-        );
-        if (single_data_distribution == rfunc::UNIFORM) {
+        auto new_requests = std::vector<workload::Request>();
+        if (current_distribution == rfunc::FIXED) {
+            const auto requests_per_data = floor(n_requests[i]/manager.n_variables());
+
+            new_requests = workload::generate_fixed_data_requests(
+                manager.n_variables(), requests_per_data
+            );
+        } else if (current_distribution == rfunc::UNIFORM) {
             auto data_rand = rfunc::uniform_distribution_rand(
                 0, manager.n_variables()-1
             );
 
-            return workload::generate_single_data_requests(
-                n_requests, data_rand
+            new_requests = workload::generate_single_data_requests(
+                n_requests[i], data_rand
             );
-        } else if (single_data_distribution == rfunc::BINOMIAL) {
-            const auto success_probability = toml::find<double>(
+        } else if (current_distribution == rfunc::BINOMIAL) {
+            const auto success_probability = toml::find<std::vector<double>>(
                 config, "workload", "requests", "single_data", "success_probability"
             );
             auto data_rand = rfunc::binomial_distribution(
-                manager.n_variables()-1, success_probability
+                manager.n_variables()-1, success_probability[binomial_counter]
             );
 
-            return workload::generate_single_data_requests(
-                n_requests, data_rand
+            new_requests = workload::generate_single_data_requests(
+                n_requests[i], data_rand
             );
+            binomial_counter++;
         }
+
+        requests.insert(requests.end(), new_requests.begin(), new_requests.end());
     }
+
+    return requests;
 }
 
 std::vector<workload::Request> generate_multi_data_requests(
     const toml_config& config, workload::Manager& manager
 ) {
-    const auto n_requests = toml::find<int>(
+    const auto n_requests = toml::find<std::vector<int>>(
         config, "workload", "requests", "multi_data", "n_requests"
     );
 
-    const auto min_involved_data = toml::find<int>(
+    const auto min_involved_data = toml::find<std::vector<int>>(
         config, "workload", "requests", "multi_data",
         "min_involved_data"
     );
-    const auto max_involved_data = toml::find<int>(
+    const auto max_involved_data = toml::find<std::vector<int>>(
         config, "workload", "requests", "multi_data",
         "max_involved_data"
     );
 
-    const auto size_distribution_ = toml::find<std::string>(
+    const auto size_distribution_ = toml::find<std::vector<std::string>>(
         config, "workload", "requests", "multi_data", "size_distribution_pattern"
     );
-    auto size_distribution = rfunc::string_to_distribution.at(
-        size_distribution_
-    );
-    rfunc::RandFunction size_rand;
-    if (size_distribution == rfunc::UNIFORM) {
-        size_rand = rfunc::uniform_distribution_rand(
-            min_involved_data, max_involved_data
-        );
-    } else if (size_distribution == rfunc::FIXED) {
-        size_rand = rfunc::fixed_distribution(max_involved_data);
-    } else if (size_distribution == rfunc::BINOMIAL) {
-        const auto success_probability = toml::find<double>(
-            config, "workload", "requests", "multi_data",
-            "size_success_probability"
-        );
-        size_rand = rfunc::ranged_binomial_distribution(
-            min_involved_data, max_involved_data, success_probability
-        );
-    }
-
-    const auto data_distribution_ = toml::find<std::string>(
+    const auto data_distribution_ = toml::find<std::vector<std::string>>(
         config, "workload", "requests", "multi_data", "data_distribution_pattern"
     );
-    auto data_distribution = rfunc::string_to_distribution.at(
-        data_distribution_
-    );
-    rfunc::RandFunction data_rand;
-    if (data_distribution == rfunc::UNIFORM) {
-        data_rand = rfunc::uniform_distribution_rand(2, manager.n_variables()-1);
-    } else if (data_distribution == rfunc::BINOMIAL) {
-        const auto success_probability = toml::find<double>(
-            config, "workload", "requests", "multi_data",
-            "data_success_probability"
+
+    auto size_binomial_counter = 0;
+    auto data_binomial_counter = 0;
+    auto requests = std::vector<workload::Request>();
+    for (auto i = 0; i < n_requests.size(); i++) {
+        auto new_requests = std::vector<workload::Request>();
+
+        auto size_distribution = rfunc::string_to_distribution.at(
+            size_distribution_[i]
         );
-        data_rand = rfunc::binomial_distribution(
-            manager.n_variables()-1, success_probability
+        rfunc::RandFunction size_rand;
+        if (size_distribution == rfunc::UNIFORM) {
+            size_rand = rfunc::uniform_distribution_rand(
+                min_involved_data[i], max_involved_data[i]
+            );
+        } else if (size_distribution == rfunc::FIXED) {
+            size_rand = rfunc::fixed_distribution(max_involved_data[i]);
+        } else if (size_distribution == rfunc::BINOMIAL) {
+            const auto success_probability = toml::find<std::vector<double>>(
+                config, "workload", "requests", "multi_data",
+                "size_success_probability"
+            );
+            size_rand = rfunc::ranged_binomial_distribution(
+                min_involved_data[i], max_involved_data[i],
+                success_probability[size_binomial_counter]
+            );
+            size_binomial_counter++;
+        }
+
+        auto data_distribution = rfunc::string_to_distribution.at(
+            data_distribution_[i]
         );
+        rfunc::RandFunction data_rand;
+        if (data_distribution == rfunc::UNIFORM) {
+            data_rand = rfunc::uniform_distribution_rand(0, manager.n_variables()-1);
+        } else if (data_distribution == rfunc::BINOMIAL) {
+            const auto success_probability = toml::find<std::vector<double>>(
+                config, "workload", "requests", "multi_data",
+                "data_success_probability"
+            );
+            data_rand = rfunc::binomial_distribution(
+                manager.n_variables()-1, success_probability[data_binomial_counter]
+            );
+            data_binomial_counter++;
+        }
+
+        new_requests = workload::generate_multi_data_requests(
+            n_requests[i],
+            manager.n_variables(),
+            data_rand,
+            size_rand
+        );
+        requests.insert(requests.end(), new_requests.begin(), new_requests.end());
     }
 
-    return workload::generate_multi_data_requests(
-        n_requests,
-        manager.n_variables(),
-        data_rand,
-        size_rand
-    );
+    return requests;
 }
 
 void generate_random_requests(
