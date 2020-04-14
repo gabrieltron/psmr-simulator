@@ -9,9 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 #Bring the headers into the project
 include_directories(include libs)
-
-file(GLOB SOURCES "src/*.cpp")
 add_subdirectory(src/libkahip)
 
+file(GLOB SOURCES "src/*.cpp")
+
 add_executable(main ${SOURCES})
-target_link_libraries(main metis kahip)
+target_link_libraries(main metis LibKahip::kahip)
