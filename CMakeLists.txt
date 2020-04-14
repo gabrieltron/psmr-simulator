@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 include_directories(include libs)
 
 file(GLOB SOURCES "src/*.cpp")
+add_subdirectory(src/libkahip)
 
 add_executable(main ${SOURCES})
-target_link_libraries(main metis)
+target_link_libraries(main metis kahip)
