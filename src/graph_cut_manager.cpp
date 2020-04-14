@@ -46,6 +46,13 @@ void GraphCutManager::repartition_data(int n_partitions) {
     }
 }
 
+void GraphCutManager::export_data(std::string output_path) {
+    std::ofstream output_stream(output_path, std::ofstream::out);
+    auto partitions_graph = partition_scheme_.graph_representation();
+    output::write_graph(partitions_graph, output::DOT, output_stream);
+    output_stream.close();
+}
+
 void GraphCutManager::update_access_structure(Request request) {
     for (auto first_data : request) {
         access_graph_.increase_vertice_weight(first_data);

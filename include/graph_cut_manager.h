@@ -27,6 +27,7 @@ public:
 
     model::Graph access_graph();
     void repartition_data(int n_partitions);
+    void export_data(std::string output_path);
 
 private:
     void update_access_structure(Request request);
