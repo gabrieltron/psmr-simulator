@@ -60,19 +60,19 @@ void Graph::set_vertice_weight(int vertice, int weight) {
     total_edges_weight_ += weight;
 }
 
-bool Graph::exist_vertice(int vertice) {
+bool Graph::exist_vertice(int vertice) const {
     return vertex_.find(vertice) != vertex_.end();
 }
 
-bool Graph::are_connected(int vertice_a, int vertice_b) {
-    return edges_[vertice_a].find(vertice_b) != edges_[vertice_a].end();
+bool Graph::are_connected(int vertice_a, int vertice_b) const {
+    return edges_.at(vertice_a).find(vertice_b) != edges_.at(vertice_a).end();
 }
 
-std::size_t Graph::n_vertex() {
+std::size_t Graph::n_vertex() const {
     return vertex_.size();
 }
 
-std::size_t Graph::n_edges() {
+std::size_t Graph::n_edges() const {
     return n_edges_;
 }
 
@@ -80,31 +80,31 @@ int Graph::vertice_weight(int vertice) const {
     return vertex_.at(vertice);
 }
 
-int Graph::edge_weight(int from, int to) {
-    return edges_[from][to];
+int Graph::edge_weight(int from, int to) const {
+    return edges_.at(from).at(to);
 }
 
-int Graph::total_vertex_weight() {
+int Graph::total_vertex_weight() const {
     return total_vertex_weight_;
 }
 
-int Graph::total_edges_weight() {
+int Graph::total_edges_weight() const {
     return total_edges_weight_;
 }
 
-const std::unordered_map<int, int>& Graph::vertice_edges(int vertice) {
-    return edges_[vertice];
+const std::unordered_map<int, int>& Graph::vertice_edges(int vertice) const {
+    return edges_.at(vertice);
 }
 
-Vertex& Graph::vertex() {
+const Vertex& Graph::vertex() const {
     return vertex_;
 }
 
-int Graph::in_degree(int vertice) {
-    return in_degree_[vertice];
+int Graph::in_degree(int vertice) const {
+    return in_degree_.at(vertice);
 }
 
-std::unordered_map<int, int> Graph::in_degrees() const {
+const std::unordered_map<int, int>& Graph::in_degrees() const {
     return in_degree_;
 }
 

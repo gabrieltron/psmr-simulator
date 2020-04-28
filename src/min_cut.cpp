@@ -5,14 +5,14 @@ namespace model {
 workload::PartitionScheme multilevel_cut(
     Graph& graph, idx_t n_partitions, CutMethod cut_method
 ) {
-    auto vertex = graph.vertex();
+    auto& vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
     idx_t n_edges = n_vertice * (n_vertice - 1);
     idx_t n_constrains = 1;
 
     auto vertice_weight = std::vector<idx_t>();
     for (auto i = 0; i < vertex.size(); i++) {
-        vertice_weight.push_back(vertex[i]);
+        vertice_weight.push_back(vertex.at(i));
     }
 
     auto x_edges = std::vector<idx_t>();

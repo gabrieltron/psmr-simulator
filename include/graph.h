@@ -21,22 +21,22 @@ public:
     void remove_vertice(int vertice_id);
     void add_edge(int from, int to, int weight = 0);
     void remove_edge(int from, int to);
-    bool exist_vertice(int vertice);
-    bool are_connected(int vertice_a, int vertice_b);
     void increase_vertice_weight(int vertice, int value = 1);
     void set_vertice_weight(int vertice, int weight);
     void increase_edge_weight(int from, int to, int value = 1);
 
-    std::size_t n_vertex();
-    std::size_t n_edges();
-    int total_vertex_weight();
-    int total_edges_weight();
+    bool exist_vertice(int vertice) const;
+    bool are_connected(int vertice_a, int vertice_b) const;
+    std::size_t n_vertex() const;
+    std::size_t n_edges() const;
+    int total_vertex_weight() const;
+    int total_edges_weight() const;
     int vertice_weight(int vertice) const;
-    int edge_weight(int from, int to);
-    const std::unordered_map<int, int>& vertice_edges(int vertice);
-    Vertex& vertex();
-    int in_degree(int vertice);
-    std::unordered_map<int, int> in_degrees() const;
+    int edge_weight(int from, int to) const;
+    const std::unordered_map<int, int>& vertice_edges(int vertice) const;
+    const Vertex& vertex() const;
+    int in_degree(int vertice) const;
+    const std::unordered_map<int, int>& in_degrees() const;
 
 protected:
     Vertex vertex_;
