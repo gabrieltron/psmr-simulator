@@ -31,17 +31,19 @@ GraphCutManager::GraphCutManager(
 {}
 
 void GraphCutManager::repartition_data(int n_partitions) {
-    if (cut_method_ == model::METIS) {
-        partition_scheme_ = std::move(
-            model::metis_cut(access_graph_, partition_scheme_.n_partitions())
-        );
-    } else if (cut_method_ == model::FENNEL) {
+    if (cut_method_ == model::FENNEL) {
         partition_scheme_ = std::move(
             model::fennel_cut(access_graph_, partition_scheme_.n_partitions())
         );
-    } else {
+    } else if (cut_method_ == model::REFENNEL) {
         partition_scheme_ = std::move(
             model::refennel_cut(access_graph_, partition_scheme_)
+        );
+    } else {
+        partition_scheme_ = std::move(
+            model::multilevel_cut(
+                access_graph_, partition_scheme_.n_partitions(), cut_method_
+            )
         );
     }
 }

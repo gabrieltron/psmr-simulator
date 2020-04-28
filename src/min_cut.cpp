@@ -2,7 +2,9 @@
 
 namespace model {
 
-workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
+workload::PartitionScheme multilevel_cut(
+    Graph& graph, idx_t n_partitions, CutMethod cut_method
+) {
     auto vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
     idx_t n_edges = n_vertice * (n_vertice - 1);
@@ -35,15 +37,24 @@ workload::PartitionScheme metis_cut(Graph& graph, idx_t n_partitions) {
     METIS_SetDefaultOptions(options);
     options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
     options[METIS_OPTION_NUMBERING] = 0;
-    //options[METIS_OPTION_DBGLVL] = 511;
 
     idx_t objval;
     auto vertex_partitions = std::vector<idx_t>(n_vertice, 0);
-    METIS_PartGraphKway(
-        &n_vertice, &n_constrains, x_edges.data(), edges.data(),
-        vertice_weight.data(), NULL, edges_weight.data(), &n_partitions, NULL,
-        NULL, options, &objval, vertex_partitions.data()
-    );
+    if (cut_method == METIS) {
+        METIS_PartGraphKway(
+            &n_vertice, &n_constrains, x_edges.data(), edges.data(),
+            vertice_weight.data(), NULL, edges_weight.data(), &n_partitions, NULL,
+            NULL, options, &objval, vertex_partitions.data()
+        );
+    } else {
+        double imbalance = 0.03;  // equal to METIS default imbalance
+        kaffpa(
+            &n_vertice, vertice_weight.data(), x_edges.data(),
+            edges_weight.data(), edges.data(), &n_partitions,
+            &imbalance, true, -1, FAST, &objval,
+            vertex_partitions.data()
+        );
+    }
 
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions; i++) {

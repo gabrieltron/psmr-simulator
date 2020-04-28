@@ -12,21 +12,25 @@
 #include <vector>
 
 #include "graph.h"
+#include "kaHIP_interface.h"
 #include "metis.h"
 #include "partition_scheme.h"
 #include "spanning_tree.h"
 
 namespace model {
 
-enum CutMethod {METIS, FENNEL, REFENNEL};
+enum CutMethod {METIS, KAHIP, FENNEL, REFENNEL};
 const std::unordered_map<std::string, CutMethod> string_to_cut_method({
     {"METIS", METIS},
+    {"KAHIP", KAHIP},
     {"FENNEL", FENNEL},
     {"REFENNEL", REFENNEL}
 });
 const double MAX_IMBALANCE = 1.03;
 
-workload::PartitionScheme metis_cut(Graph& graph, int n_partitions);
+workload::PartitionScheme multilevel_cut(
+    Graph& graph, int n_partitions, CutMethod cut_method
+);
 
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions);
 workload::PartitionScheme refennel_cut(

@@ -12,7 +12,6 @@
 #include "early_min_cut_manager.h"
 #include "execution_log.h"
 #include "graph_cut_manager.h"
-#include "kaHIP_interface.h"
 #include "min_cut.h"
 #include "manager.h"
 #include "min_cut_manager.h"

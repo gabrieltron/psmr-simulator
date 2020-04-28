@@ -83,6 +83,10 @@ void write_log_info(
 ) {
     auto makespan = execution_log.makespan();
     output_stream << "Makespan: " << makespan << "\n";
+
+    auto n_requests = execution_log.processed_requests();
+    output_stream << "Requests executed: " << n_requests << "\n";
+
     output_stream << "Execution time | Idle Time | Idle percentage\n";
     auto execution_time = execution_log.execution_time();
     auto idle_time = execution_log.idle_time_per_partition();
@@ -92,17 +96,18 @@ void write_log_info(
         auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
         output_stream << idle_percentage << "%\n";
     }
+
     auto average_idle_time =
         (double) execution_log.idle_time() / execution_log.n_threads();
     output_stream << "Average idle time: " << average_idle_time << "\n";
     output_stream << "\n";
 
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";
-    output_stream << "Syncs involving partitions:\n";
-    auto syncs_with_n_partitions = execution_log.syncs_with_n_partitions();
-    for (auto i = 1; i <= syncs_with_n_partitions.size(); i++) {
+    output_stream << "Crossborder requests executed:\n";
+    auto& crossborder_requests = execution_log.crossborder_requests();
+    for (auto i = 1; i <= crossborder_requests.size(); i++) {
         output_stream << i << " partitions: ";
-        output_stream << syncs_with_n_partitions[i] << "\n";
+        output_stream << crossborder_requests.at(i) << "\n";
     }
     output_stream << "\n";
 }
