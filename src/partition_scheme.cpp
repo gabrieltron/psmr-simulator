@@ -38,11 +38,13 @@ void PartitionScheme::update_partitions(std::vector<Partition>& partitions) {
 
 void PartitionScheme::add_data(int data, int partition, int data_size) {
     partitions_[partition].insert(data, data_size);
+    data_partitions_[data] = partition;
 }
 
 void PartitionScheme::remove_data(int data) {
     auto data_partition = data_partitions_[data];
     partitions_[data_partition].remove(data);
+    data_partitions_.erase(data);
 }
 
 model::Graph PartitionScheme::graph_representation() {
