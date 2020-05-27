@@ -85,7 +85,16 @@ void write_log_info(
     output_stream << "Makespan: " << makespan << "\n";
 
     auto n_requests = execution_log.processed_requests();
+    auto requests_per_partition = execution_log.requests_per_thread();
     output_stream << "Requests executed: " << n_requests << "\n";
+    for (auto kv : requests_per_partition) {
+        auto id = kv.first;
+        auto n_requests = kv.second;
+
+        output_stream << "Partition " << id << ": " << n_requests << "\n";
+    }
+
+    output_stream << "\n";
 
     output_stream << "Execution time | Idle Time | Idle percentage\n";
     auto execution_time = execution_log.execution_time();

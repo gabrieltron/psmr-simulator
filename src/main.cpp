@@ -392,10 +392,5 @@ int main(int argc, char* argv[]) {
     auto execution_log = manager->execute_requests();
     export_execution_info(config, execution_log);
 
-    const auto manager_output_path = toml::find<std::string>(
-        config, "output", "manager", "path"
-    );
-    manager->export_data(manager_output_path);
-
     return 0;
 }

@@ -42,9 +42,10 @@ ExecutionLog MinCutManager::execute_requests() {
             );
         }
 
-        log.sync_partitions(involved_partitions);
-        for (auto partition : involved_partitions) {
-            log.increase_elapsed_time(partition);
+        auto executing_partition = *involved_partitions.begin();
+        log.execute_request(executing_partition);
+        if (involved_partitions.size() > 1) {
+            log.sync_partitions(involved_partitions);
         }
 
         update_access_structure(request);

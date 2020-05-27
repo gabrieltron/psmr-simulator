@@ -37,6 +37,7 @@ workload::PartitionScheme multilevel_cut(
     METIS_SetDefaultOptions(options);
     options[METIS_OPTION_OBJTYPE] = METIS_OBJTYPE_CUT;
     options[METIS_OPTION_NUMBERING] = 0;
+    options[METIS_OPTION_UFACTOR] = 200;
 
     idx_t objval;
     auto vertex_partitions = std::vector<idx_t>(n_vertice, 0);
@@ -47,7 +48,7 @@ workload::PartitionScheme multilevel_cut(
             NULL, options, &objval, vertex_partitions.data()
         );
     } else {
-        double imbalance = 0.03;  // equal to METIS default imbalance
+        double imbalance = 0.2;  // equal to METIS default imbalance
         kaffpa(
             &n_vertice, vertice_weight.data(), x_edges.data(),
             edges_weight.data(), edges.data(), &n_partitions,
