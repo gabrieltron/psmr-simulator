@@ -87,11 +87,10 @@ void write_log_info(
     auto n_requests = execution_log.processed_requests();
     auto requests_per_partition = execution_log.requests_per_thread();
     output_stream << "Requests executed: " << n_requests << "\n";
-    for (auto kv : requests_per_partition) {
-        auto id = kv.first;
-        auto n_requests = kv.second;
+    for (auto i = 0; i < requests_per_partition.size(); i ++) {
+        auto n_requests = requests_per_partition[i];
 
-        output_stream << "Partition " << id << ": " << n_requests << "\n";
+        output_stream << "Partition " << i << ": " << n_requests << "\n";
     }
 
     output_stream << "\n";
