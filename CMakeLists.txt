@@ -37,6 +37,7 @@ target_include_directories(
 )
 
 add_subdirectory(src/libkahip)
+add_subdirectory(src/libmetis)
 
 target_compile_features(
     main
@@ -47,6 +48,6 @@ target_compile_features(
 target_link_libraries(
     main
         PRIVATE
-            metis
+            LibMetis::metis
             LibKahip::kahip
 )
