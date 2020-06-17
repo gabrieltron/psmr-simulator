@@ -55,7 +55,7 @@ void GraphCutManager::export_data(std::string output_path) {
     output_stream.close();
 }
 
-void GraphCutManager::update_access_structure(Request request) {
+void GraphCutManager::update_access_structure(const Request& request) {
     for (auto first_data : request) {
         access_graph_.increase_vertice_weight(first_data);
         for (auto second_data : request) {
