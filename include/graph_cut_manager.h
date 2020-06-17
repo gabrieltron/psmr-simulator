@@ -30,7 +30,7 @@ public:
     void export_data(std::string output_path);
 
 private:
-    void update_access_structure(Request request);
+    void update_access_structure(const Request& request);
 
     model::Graph access_graph_;
     model::CutMethod cut_method_;

@@ -28,7 +28,7 @@ public:
     void export_data(std::string output_path);
 
 private:
-    void update_access_structure(Request request);
+    void update_access_structure(const Request& request);
 
     model::SpanningTree access_tree_;
 

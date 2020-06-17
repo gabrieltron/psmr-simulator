@@ -37,7 +37,7 @@ void TreeCutManager::repartition_data(int n_partitions) {
     partition_scheme_ = std::move(data_partitions);
 }
 
-void TreeCutManager::update_access_structure(Request request) {
+void TreeCutManager::update_access_structure(const Request& request) {
     for (auto first_data : request) {
         access_tree_.increase_node_weight(first_data, 1);
         for (auto second_data : request) {

@@ -36,7 +36,7 @@ public:
     void export_data(std::string output_path);
 
 protected:
-    virtual void update_access_structure(Request request) = 0;
+    virtual void update_access_structure(const Request& request) = 0;
 
     int repartition_interval_;
     PartitionScheme partition_scheme_;
