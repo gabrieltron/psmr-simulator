@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(smr-request-generator CXX)
+project(smr-simulator CXX)
 
 include(cmake/base.cmake)
 include(cmake/project_options.cmake)
