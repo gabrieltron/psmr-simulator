@@ -6,11 +6,11 @@
 #include <string>
 #include <unordered_map>
 
-#include "execution_log.h"
-#include "graph.h"
-#include "min_cut.h"
-#include "partition_scheme.h"
-#include "spanning_tree.h"
+#include "log/execution_log.h"
+#include "graph/graph.h"
+#include "partition/min_cut.h"
+#include "partition/partition_scheme.h"
+#include "graph/spanning_tree.h"
 
 namespace output {
 

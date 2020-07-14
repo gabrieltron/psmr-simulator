@@ -8,11 +8,12 @@
 #include <unordered_set>
 #include <utility>
 
-#include "execution_log.h"
-#include "graph.h"
+#include "log/execution_log.h"
+#include "graph/graph.h"
 #include "manager.h"
-#include "partition_scheme.h"
-#include "random.h"
+#include "partition/partition_scheme.h"
+#include "request/random.h"
+
 
 namespace workload {
 

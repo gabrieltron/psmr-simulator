@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "graph.h"
-#include "min_cut.h"
+#include "graph/graph.h"
+#include "partition/min_cut.h"
 #include "min_cut_manager.h"
 
 namespace workload {

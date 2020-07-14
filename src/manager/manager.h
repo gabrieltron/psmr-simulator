@@ -5,12 +5,11 @@
 #include <string>
 #include <toml11/toml.hpp>
 
-#include "execution_log.h"
-#include "write.h"
+#include "request/request_generation.h"
+#include "log/execution_log.h"
+#include "write/write.h"
 
 namespace workload {
-
-typedef std::unordered_set<int> Request;
 
 class Manager {
 public:

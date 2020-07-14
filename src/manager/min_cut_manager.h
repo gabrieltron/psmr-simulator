@@ -6,12 +6,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "execution_log.h"
-#include "graph.h"
-#include "min_cut.h"
+#include "log/execution_log.h"
+#include "graph/graph.h"
+#include "partition/min_cut.h"
 #include "manager.h"
-#include "partition_scheme.h"
-#include "random.h"
+#include "partition/partition_scheme.h"
+#include "request/random.h"
 
 namespace workload {
 

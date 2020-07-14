@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "min_cut.h"
+#include "partition/min_cut.h"
+#include "graph/spanning_tree.h"
 #include "min_cut_manager.h"
-#include "spanning_tree.h"
 
 namespace workload {
 

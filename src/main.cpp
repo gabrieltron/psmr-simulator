@@ -8,16 +8,16 @@
 #include <toml11/toml.hpp>
 #include <unordered_map>
 
-#include "cbase_manager.h"
-#include "early_min_cut_manager.h"
-#include "execution_log.h"
-#include "graph_cut_manager.h"
-#include "min_cut.h"
-#include "manager.h"
-#include "min_cut_manager.h"
-#include "request_generation.h"
-#include "tree_cut_manager.h"
-#include "write.h"
+#include "manager/manager.h"
+#include "manager/cbase_manager.h"
+#include "manager/early_min_cut_manager.h"
+#include "manager/graph_cut_manager.h"
+#include "manager/min_cut_manager.h"
+#include "manager/tree_cut_manager.h"
+#include "log/execution_log.h"
+#include "partition/min_cut.h"
+#include "request/request_generation.h"
+#include "write/write.h"
 
 typedef toml::basic_value<toml::discard_comments, std::unordered_map> toml_config;
 

@@ -4,12 +4,14 @@
 #include <algorithm>
 #include <functional>
 #include <random>
+#include <unordered_set>
 #include <vector>
 
-#include "manager.h"
 #include "random.h"
 
 namespace workload {
+
+typedef std::unordered_set<int> Request;
 
 std::vector<Request> generate_single_data_requests(
     int n_requests,

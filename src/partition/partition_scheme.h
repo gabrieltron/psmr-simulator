@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "graph.h"
+#include "graph/graph.h"
 #include "partition.h"
 
 namespace workload{
