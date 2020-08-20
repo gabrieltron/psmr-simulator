@@ -2,8 +2,10 @@
 #define WORKLOAD_REQUEST_GENERATOR_H
 
 #include <algorithm>
+#include <fstream>
 #include <functional>
 #include <random>
+#include <sstream>
 #include <unordered_set>
 #include <vector>
 
@@ -13,6 +15,7 @@ namespace workload {
 
 typedef std::unordered_set<int> Request;
 
+std::vector<Request> import_requests(const std::string& input_path);
 std::vector<Request> generate_single_data_requests(
     int n_requests,
     rfunc::RandFunction& data_rand

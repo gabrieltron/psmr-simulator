@@ -85,10 +85,20 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
     const auto gamma = 3 / 2.0;
     const auto alpha =
         edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
-
+    auto partition_max_size = 1.2 * graph.total_vertex_weight() / n_partitions;
     for (auto& kv: graph.vertex()) {
         auto vertice = kv.first;
-        auto partition = fennel_vertice_partition(graph, vertice, partitions, gamma);
+        auto partition = fennel_vertice_partition(
+            graph, vertice, partitions,
+            partition_max_size, alpha, gamma
+        );
+        if (partition == -1) {
+            partition_max_size = 0;
+            partition = fennel_vertice_partition(
+                graph, vertice, partitions,
+                partition_max_size, alpha, gamma
+            );
+        }
         partitions[partition].insert(vertice, graph.vertice_weight(vertice));
     }
 
@@ -103,12 +113,20 @@ workload::PartitionScheme refennel_cut(
     const auto gamma = 3 / 2.0;
     const auto alpha =
         edges_weight * std::pow(old_scheme.n_partitions(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
-
+    auto partition_max_size = 1.2 * graph.total_vertex_weight() / old_scheme.n_partitions();
     for (auto& kv: graph.vertex()) {
         auto vertice = kv.first;
         auto new_partition = fennel_vertice_partition(
-            graph, vertice, old_scheme.partitions(), gamma
+            graph, vertice, old_scheme.partitions(),
+            partition_max_size, alpha, gamma
         );
+        if (new_partition == -1) {
+            partition_max_size = 0;
+            new_partition = fennel_vertice_partition(
+                graph, vertice, old_scheme.partitions(),
+                partition_max_size, alpha, gamma
+            );
+        }
         auto old_partition = old_scheme.data_partition(vertice);
         old_scheme.remove_data(vertice);
         old_scheme.add_data(vertice, new_partition, graph.vertice_weight(vertice));
@@ -147,20 +165,27 @@ int biggest_value_index(std::vector<double>& partitions_score) {
 
 int fennel_vertice_partition(
     Graph& graph, int vertice, std::vector<workload::Partition>& partitions,
-    double gamma
+    int max_partition_size, double alpha, double gamma
 ) {
     double biggest_score = -DBL_MAX;
     auto id = 0;
     auto designated_partition = 0;
     for (auto& partition : partitions) {
         auto partition_weight = partition.weight();
+        if (max_partition_size > 0) {
+            if (partition_weight + graph.vertice_weight(vertice) > max_partition_size) {
+                id++;
+                continue;
+            }
+        }
+
         auto& edges = graph.vertice_edges(vertice);
 
         auto inter_cost = fennel_inter_cost(edges, partition);
         auto intra_cost =
             (std::pow(partition.weight() + graph.vertice_weight(vertice), gamma));
         intra_cost -= std::pow(partition.weight(), gamma);
-        intra_cost *= gamma;
+        intra_cost *= alpha;
         auto score = inter_cost - intra_cost;
 
         if (score > biggest_score) {

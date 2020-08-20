@@ -191,7 +191,9 @@ void import_requests(const toml_config& config, workload::Manager& manager) {
     auto import_path = toml::find<std::string>(
         config, "workload", "requests", "import_path"
     );
-    manager.import_requests(import_path);
+    auto requests = std::move(workload::import_requests(import_path));
+    //std::cout << "Imported" << requests.size() << " requests" << std::endl;
+    manager.set_requests(requests);
 }
 
 std::unique_ptr<workload::CBaseManager> create_cbase_cut_manager(

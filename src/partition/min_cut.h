@@ -44,6 +44,8 @@ int fennel_vertice_partition(
     Graph& graph,
     int vertice,
     std::vector<workload::Partition>& partitions,
+    int max_partition_size,
+    double alpha,
     double gamma
 );
 int biggest_value_index(std::vector<double>& partitions_score);
