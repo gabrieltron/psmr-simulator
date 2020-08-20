@@ -57,6 +57,9 @@ void GraphCutManager::export_data(std::string output_path) {
 
 void GraphCutManager::update_access_structure(const Request& request) {
     for (auto first_data : request) {
+        if (not access_graph_.exist_vertice(first_data)) {
+            access_graph_.add_vertice(first_data);
+        }
         access_graph_.increase_vertice_weight(first_data);
         for (auto second_data : request) {
             if (first_data == second_data) {
