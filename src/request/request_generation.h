@@ -15,7 +15,7 @@ namespace workload {
 
 typedef std::unordered_set<int> Request;
 
-std::vector<Request> import_requests(const std::string& input_path);
+std::vector<Request> import_requests(const std::string& input_path, int n_initial_keys);
 std::vector<Request> generate_single_data_requests(
     int n_requests,
     rfunc::RandFunction& data_rand

@@ -191,7 +191,7 @@ void import_requests(const toml_config& config, workload::Manager& manager) {
     auto import_path = toml::find<std::string>(
         config, "workload", "requests", "import_path"
     );
-    auto requests = std::move(workload::import_requests(import_path));
+    auto requests = std::move(workload::import_requests(import_path, manager.n_variables()));
     //std::cout << "Imported" << requests.size() << " requests" << std::endl;
     manager.set_requests(requests);
 }

@@ -2,7 +2,7 @@
 
 namespace workload {
 
-Request make_request(char* type_buffer, char* key_buffer, char* arg_buffer) {
+Request make_request(char* type_buffer, char* key_buffer, char* arg_buffer, std::unordered_set<int>& inserted_keys) {
     auto type = std::stoi(type_buffer);
     auto key = std::stoi(key_buffer);
     auto arg = std::string(arg_buffer);
@@ -11,16 +11,22 @@ Request make_request(char* type_buffer, char* key_buffer, char* arg_buffer) {
     request.insert(key);
     if (type == 2) {
         for (auto i = 1; i <= std::stoi(arg); i++) {
-            request.insert(key+1);
+            request.insert((key) % inserted_keys.size());
         }
+    } else if (type == 1) {
+        inserted_keys.insert(key);
     }
     return request;
 }
 
-std::vector<Request> import_requests(const std::string& file_path)
+std::vector<Request> import_requests(const std::string& file_path, int n_initial_keys)
 {
-    std::ifstream infile(file_path);
+    std::unordered_set<int> inserted_keys;
+    for(auto i = 0; i < n_initial_keys; i++) {
+        inserted_keys.insert(i);
+    }
 
+    std::ifstream infile(file_path);
     std::vector<Request> requests;
     std::string line;
     char type_buffer[2];
@@ -41,7 +47,8 @@ std::vector<Request> import_requests(const std::string& file_path)
                     requests.emplace_back(make_request(
                         type_buffer,
                         key_buffer,
-                        arg_buffer
+                        arg_buffer,
+                        inserted_keys
                     ));
                 }
                 buffer_index = 0;
