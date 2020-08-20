@@ -38,6 +38,7 @@ public:
 protected:
     virtual void update_access_structure(const Request& request) = 0;
 
+    int round_robin_counter_ = 0;
     int repartition_interval_;
     PartitionScheme partition_scheme_;
 };

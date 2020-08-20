@@ -20,10 +20,9 @@ MinCutManager::MinCutManager(
         repartition_interval_{repartition_interval}
 {
     auto data_partition = std::vector<int>();
-    auto current_partition = 0;
     for (auto i = 0; i < n_variables_; i++) {
-        data_partition.push_back(current_partition);
-        current_partition = (current_partition+1) % n_partitions;
+        data_partition.push_back(round_robin_counter_);
+        round_robin_counter_ = (round_robin_counter_+1) % n_partitions;
     }
     partition_scheme_ = PartitionScheme(n_partitions, data_partition);
 }
@@ -37,6 +36,11 @@ ExecutionLog MinCutManager::execute_requests() {
 
         auto involved_partitions = std::unordered_set<int>();
         for (auto data : request) {
+            if (not partition_scheme_.in_scheme(data)) {
+                partition_scheme_.add_data(data, round_robin_counter_, 0);
+                round_robin_counter_ =
+                    (round_robin_counter_+1) % partition_scheme_.n_partitions();
+            }
             involved_partitions.insert(
                 partition_scheme_.data_partition(data)
             );

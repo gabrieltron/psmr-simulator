@@ -47,6 +47,10 @@ void PartitionScheme::remove_data(int data) {
     data_partitions_.erase(data);
 }
 
+bool PartitionScheme::in_scheme(int data) const {
+    return data_partitions_.find(data) != data_partitions_.end();
+}
+
 model::Graph PartitionScheme::graph_representation() {
     auto graph = model::Graph();
 

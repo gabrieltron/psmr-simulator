@@ -26,6 +26,8 @@ public:
     void add_data(int data, int partition, int data_size);
     void remove_data(int data);
     void update_partitions(std::vector<Partition>& partitions);
+    bool in_scheme(int data) const;
+
     model::Graph graph_representation();
     std::vector<Partition>& partitions();
     int data_partition(int data);
