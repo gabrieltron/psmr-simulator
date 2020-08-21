@@ -34,7 +34,8 @@ ExecutionLog CBaseManager::execute_requests() {
         log.increase_elapsed_time(thread_id);
 
         // update graph and add new ready requests to heap
-        for (auto kv : graph.vertice_edges(vertice_id)) {
+	auto edges = graph.vertice_edges(vertice_id);
+	for (auto& kv : edges) {
             auto neighbour = kv.first;
 
             auto new_neighbour_weight = graph.vertice_weight(vertice_id) + 1;
