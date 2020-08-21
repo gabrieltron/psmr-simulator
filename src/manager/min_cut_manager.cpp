@@ -36,7 +36,7 @@ ExecutionLog MinCutManager::execute_requests() {
 
         auto involved_partitions = std::unordered_set<int>();
         for (auto data : request) {
-            if (not partition_scheme_.in_scheme(data)) {
+    	    if (not partition_scheme_.in_scheme(data)) {
                 partition_scheme_.add_data(data, round_robin_counter_, 0);
                 round_robin_counter_ =
                     (round_robin_counter_+1) % partition_scheme_.n_partitions();

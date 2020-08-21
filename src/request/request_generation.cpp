@@ -11,7 +11,7 @@ Request make_request(char* type_buffer, char* key_buffer, char* arg_buffer, std:
     request.insert(key);
     if (type == 2) {
         for (auto i = 1; i <= std::stoi(arg); i++) {
-            request.insert((key) % inserted_keys.size());
+            request.insert((key+i) % inserted_keys.size());
         }
     } else if (type == 1) {
         inserted_keys.insert(key);

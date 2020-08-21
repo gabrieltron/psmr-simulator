@@ -15,6 +15,7 @@ Graph::Graph(int n_vertex)
 void Graph::add_vertice(int id, int weight /*= 0*/) {
     vertex_[id] = weight;
     in_degree_[id] = 0;
+    edges_[id] = std::unordered_map<int, int>();
     total_vertex_weight_ += weight;
 }
 
