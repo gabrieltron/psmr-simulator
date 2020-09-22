@@ -19,7 +19,7 @@ public:
     virtual void export_data(std::string output_path) = 0;
 
     void add_request(Request request);
-    void set_requests(std::vector<Request> requests);
+    void set_requests(const std::vector<Request>& requests);
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
 

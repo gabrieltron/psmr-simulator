@@ -32,7 +32,7 @@ void Manager::import_requests(std::string input_path) {
     }
 }
 
-void Manager::set_requests(std::vector<Request> requests) {
+void Manager::set_requests(const std::vector<Request>& requests) {
     for (auto request_vector : requests) {
         auto request = Request(request_vector.begin(), request_vector.end());
         requests_.push_back(request);
