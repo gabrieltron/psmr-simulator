@@ -4,8 +4,6 @@ add_subdirectory(manager)
 add_subdirectory(partition)
 add_subdirectory(request)
 add_subdirectory(write)
-add_subdirectory(libkahip)
-add_subdirectory(libmetis)
 
 add_executable(main)
 

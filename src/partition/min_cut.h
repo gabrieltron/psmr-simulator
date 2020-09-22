@@ -11,10 +11,11 @@
 #include <utility>
 #include <vector>
 
+#include "kaHIP_interface.h"
+#include "metis.h"
+
 #include "graph/graph.h"
 #include "graph/spanning_tree.h"
-#include "libkahip/include/kaHIP_interface.h"
-#include "libmetis/include/metis.h"
 #include "partition/partition_scheme.h"
 
 namespace model {

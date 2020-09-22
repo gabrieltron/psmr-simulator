@@ -21,7 +21,7 @@ target_include_directories(
 target_link_libraries(
     partition
         PUBLIC
-            LibMetis::metis
-            LibKahip::kahip
+            metis
+            kahip
             graph
 )

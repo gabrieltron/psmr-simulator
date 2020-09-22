@@ -10,4 +10,7 @@ conan(
         toml11/3.4.0
 )
 
+include(cmake/add_libkahip.cmake)
+include(cmake/add_libmetis.cmake)
+
 add_subdirectory(src)
