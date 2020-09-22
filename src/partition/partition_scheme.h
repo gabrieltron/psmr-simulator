@@ -24,6 +24,7 @@ public:
     );
 
     void add_data(int data, int partition, int data_size);
+    void increase_partition_weight(int data, int weight = 1);
     void remove_data(int data);
     void update_partitions(std::vector<Partition>& partitions);
     bool in_scheme(int data) const;
@@ -31,7 +32,7 @@ public:
     model::Graph graph_representation();
     std::vector<Partition>& partitions();
     int data_partition(int data);
-    std::unordered_map<int, int> data_partition_map();
+    const std::unordered_map<int, int>& data_partition_map();
     int n_partitions();
 
 private:

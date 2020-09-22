@@ -41,6 +41,11 @@ void PartitionScheme::add_data(int data, int partition, int data_size) {
     data_partitions_[data] = partition;
 }
 
+void PartitionScheme::increase_partition_weight(int data, int weight /* = 1 */) {
+    auto partition = data_partitions_.at(data);
+    partitions_.at(partition).increase_weight(data, weight);
+}
+
 void PartitionScheme::remove_data(int data) {
     auto data_partition = data_partitions_[data];
     partitions_[data_partition].remove(data);
@@ -79,7 +84,7 @@ int PartitionScheme::data_partition(int data) {
     return data_partitions_[data];
 }
 
-std::unordered_map<int, int> PartitionScheme::data_partition_map() {
+const std::unordered_map<int, int>& PartitionScheme::data_partition_map() {
     return data_partitions_;
 }
 

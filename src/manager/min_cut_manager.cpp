@@ -41,8 +41,11 @@ ExecutionLog MinCutManager::execute_requests() {
                 round_robin_counter_ =
                     (round_robin_counter_+1) % partition_scheme_.n_partitions();
             }
+            partition_scheme_.increase_partition_weight(data);
+            auto partition_id = partition_scheme_.data_partition(data);
+
             involved_partitions.insert(
-                partition_scheme_.data_partition(data)
+                partition_scheme_.data_partition(partition_id)
             );
         }
 

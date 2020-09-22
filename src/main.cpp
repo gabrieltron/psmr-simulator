@@ -328,7 +328,7 @@ std::unique_ptr<workload::EarlyMinCutManager> create_early_min_cut_manager(
 
 void export_requests(const toml_config& config, workload::Manager& manager) {
     const auto output_path = toml::find<std::string>(
-        config, "output", "requests", "path"
+        config, "output", "requests", "output_path"
     );
     std::ofstream ofs(output_path, std::ofstream::out);
     manager.export_requests(ofs);
