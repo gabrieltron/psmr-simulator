@@ -2,6 +2,9 @@
 
 namespace model {
 
+// Used by refennel to call refennel if it's the first time it partitions
+bool first_repartition = true;
+
 workload::PartitionScheme multilevel_cut(
     Graph& graph, idx_t n_partitions, CutMethod cut_method
 ) {
@@ -108,6 +111,10 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
 workload::PartitionScheme refennel_cut(
     Graph& graph, workload::PartitionScheme& old_scheme
 ) {
+    if (first_repartition) {
+        first_repartition = false;
+        return fennel_cut(graph, old_scheme.n_partitions());
+    }
     const auto edges_weight = graph.total_edges_weight();
     const auto vertex_weight = graph.total_vertex_weight();
     const auto gamma = 3 / 2.0;
