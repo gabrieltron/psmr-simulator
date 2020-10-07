@@ -32,25 +32,10 @@ const double MAX_IMBALANCE = 1.03;
 workload::PartitionScheme multilevel_cut(
     Graph& graph, int n_partitions, CutMethod cut_method
 );
-
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions);
 workload::PartitionScheme refennel_cut(
     Graph& graph, workload::PartitionScheme& old_partition
 );
-int fennel_inter_cost(
-    const std::unordered_map<int, int>& edges,
-    workload::Partition& partition
-);
-int fennel_vertice_partition(
-    Graph& graph,
-    int vertice,
-    std::vector<workload::Partition>& partitions,
-    int max_partition_size,
-    double alpha,
-    double gamma
-);
-int biggest_value_index(std::vector<double>& partitions_score);
-
 workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions);
 
 }

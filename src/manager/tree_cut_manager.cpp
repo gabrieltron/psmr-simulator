@@ -62,7 +62,7 @@ const model::SpanningTree& TreeCutManager::access_tree() {
 }
 
 void TreeCutManager::export_data(std::string output_path) {
-    auto data_partitions = partition_scheme_.data_partition_map();
+    auto data_partitions = partition_scheme_.value_to_partition_map();
     std::ofstream output_stream(output_path, std::ofstream::out);
     output::write_data_partitions(data_partitions, output_stream);
     output_stream << "\n\n";

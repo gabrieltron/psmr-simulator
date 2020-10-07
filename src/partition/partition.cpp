@@ -7,7 +7,7 @@ void Partition::increase_weight(int data, int weight) {
     total_weight_ += weight;
 }
 
-int Partition::weight() {
+int Partition::weight() const {
     return total_weight_;
 }
 
@@ -23,7 +23,7 @@ void Partition::remove(int data) {
     weight_.erase(data);
 }
 
-const std::unordered_set<int>& Partition::data() {
+const std::unordered_set<int>& Partition::data() const {
     return data_set_;
 }
 

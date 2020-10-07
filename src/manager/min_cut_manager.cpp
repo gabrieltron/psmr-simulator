@@ -37,15 +37,15 @@ ExecutionLog MinCutManager::execute_requests() {
         auto involved_partitions = std::unordered_set<int>();
         for (auto data : request) {
     	    if (not partition_scheme_.in_scheme(data)) {
-                partition_scheme_.add_data(data, round_robin_counter_, 0);
+                partition_scheme_.add_value(data, round_robin_counter_, 0);
                 round_robin_counter_ =
                     (round_robin_counter_+1) % partition_scheme_.n_partitions();
             }
             partition_scheme_.increase_partition_weight(data);
-            auto partition_id = partition_scheme_.data_partition(data);
+            auto partition_id = partition_scheme_.value_to_partition(data);
 
             involved_partitions.insert(
-                partition_scheme_.data_partition(partition_id)
+                partition_scheme_.value_to_partition(partition_id)
             );
         }
 
@@ -74,7 +74,7 @@ ExecutionLog MinCutManager::execute_requests() {
 }
 
 void MinCutManager::export_data(std::string output_path) {
-    auto data_partitions = partition_scheme_.data_partition_map();
+    auto data_partitions = partition_scheme_.value_to_partition_map();
     std::ofstream output_stream(output_path, std::ofstream::out);
     output::write_data_partitions(data_partitions, output_stream);
     output_stream.close();

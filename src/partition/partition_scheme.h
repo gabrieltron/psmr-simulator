@@ -22,21 +22,23 @@ public:
         std::vector<Partition>& partitions
     );
 
-    void add_data(int data, int partition, int data_size);
-    void increase_partition_weight(int data, int weight = 1);
-    void remove_data(int data);
+    void add_value(int value, int partition, int n_accesses);
+    void increase_partition_weight(int partition_id, int weight=1);
+    void remove_value(int value);
     void update_partitions(std::vector<Partition>& partitions);
-    bool in_scheme(int data) const;
+    bool in_scheme(int value) const;
 
-    model::Graph graph_representation();
-    std::vector<Partition>& partitions();
-    int data_partition(int data);
-    const std::unordered_map<int, int>& data_partition_map();
-    int n_partitions();
+    int n_partitions() const;
+    int value_to_partition(int value) const;
+    const std::vector<Partition>& partitions() const;
+    const std::unordered_map<int, int>& value_to_partition_map() const;
+    model::Graph graph_representation() const;
 
 private:
     int round_robin_counter_;
-    std::unordered_map<int, int> data_to_partition_;
+
+    model::Graph access_graph_;
+    std::unordered_map<int, int> value_to_partition_;
     std::vector<Partition> partitions_;
 };
 

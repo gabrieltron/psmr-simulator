@@ -13,8 +13,8 @@ public:
     void insert(int data, int weight = 0);
     void remove(int data);
     void increase_weight(int data, int weight);
-    int weight();
-    const std::unordered_set<int>& data();
+    int weight() const;
+    const std::unordered_set<int>& data() const;
 
 private:
     int total_weight_ = 0;

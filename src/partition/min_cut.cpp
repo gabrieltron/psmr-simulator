@@ -76,6 +76,69 @@ workload::PartitionScheme multilevel_cut(
     return workload::PartitionScheme(partitions);
 }
 
+int fennel_inter_cost(
+    const std::unordered_map<int, int>& edges,
+    const workload::Partition& partition
+) {
+    auto& vertex = partition.data();
+    auto cost = 0;
+    for (auto& kv : edges) {
+        auto vertice = kv.first;
+        auto weight = kv.second;
+        if (vertex.find(vertice) != vertex.end()) {
+            cost += weight;
+        }
+    }
+    return cost;
+}
+
+int biggest_value_index(std::vector<double>& partitions_score) {
+    auto index = 0;
+    auto biggest = partitions_score[0];
+    for (auto i = 1; i < partitions_score.size(); i++) {
+        if (partitions_score[i] > biggest) {
+            biggest = partitions_score[i];
+            index = i;
+        }
+    }
+    return index;
+}
+
+int fennel_vertice_partition(
+    Graph& graph, int vertice, const std::vector<workload::Partition>& partitions,
+    int max_partition_size, double alpha, double gamma
+) {
+    double biggest_score = -DBL_MAX;
+    auto id = 0;
+    auto designated_partition = 0;
+    for (auto& partition : partitions) {
+        auto partition_weight = partition.weight();
+        if (max_partition_size > 0) {
+            if (partition_weight + graph.vertice_weight(vertice) > max_partition_size) {
+                id++;
+                continue;
+            }
+        }
+
+        auto& edges = graph.vertice_edges(vertice);
+
+        auto inter_cost = fennel_inter_cost(edges, partition);
+        auto intra_cost =
+            (std::pow(partition.weight() + graph.vertice_weight(vertice), gamma));
+        intra_cost -= std::pow(partition.weight(), gamma);
+        intra_cost *= alpha;
+        auto score = inter_cost - intra_cost;
+
+        if (score > biggest_score) {
+            biggest_score = score;
+            designated_partition = id;
+        }
+        id++;
+    }
+
+    return designated_partition;
+}
+
 workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions; i++) {
@@ -109,100 +172,38 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
 }
 
 workload::PartitionScheme refennel_cut(
-    Graph& graph, workload::PartitionScheme& old_scheme
+    Graph& graph, workload::PartitionScheme& partition_scheme
 ) {
     if (first_repartition) {
         first_repartition = false;
-        return fennel_cut(graph, old_scheme.n_partitions());
+        return fennel_cut(graph, partition_scheme.n_partitions());
     }
     const auto edges_weight = graph.total_edges_weight();
     const auto vertex_weight = graph.total_vertex_weight();
     const auto gamma = 3 / 2.0;
     const auto alpha =
-        edges_weight * std::pow(old_scheme.n_partitions(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
-    auto partition_max_size = 1.2 * graph.total_vertex_weight() / old_scheme.n_partitions();
+        edges_weight * std::pow(partition_scheme.n_partitions(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
+    auto partition_max_size = 1.2 * graph.total_vertex_weight() / partition_scheme.n_partitions();
     for (auto& kv: graph.vertex()) {
         auto vertice = kv.first;
         auto new_partition = fennel_vertice_partition(
-            graph, vertice, old_scheme.partitions(),
+            graph, vertice, partition_scheme.partitions(),
             partition_max_size, alpha, gamma
         );
         if (new_partition == -1) {
             partition_max_size = 0;
             new_partition = fennel_vertice_partition(
-                graph, vertice, old_scheme.partitions(),
+                graph, vertice, partition_scheme.partitions(),
                 partition_max_size, alpha, gamma
             );
         }
-        auto old_partition = old_scheme.data_partition(vertice);
-        old_scheme.remove_data(vertice);
-        old_scheme.add_data(vertice, new_partition, graph.vertice_weight(vertice));
+        auto old_partition = partition_scheme.value_to_partition(vertice);
+        partition_scheme.remove_value(vertice);
+        partition_scheme.add_value(vertice, new_partition, graph.vertice_weight(vertice));
     }
 
-    return std::move(old_scheme);
+    return partition_scheme;
 
-}
-
-int fennel_inter_cost(
-    const std::unordered_map<int, int>& edges, workload::Partition& partition
-) {
-    auto& vertex = partition.data();
-    auto cost = 0;
-    for (auto& kv : edges) {
-        auto vertice = kv.first;
-        auto weight = kv.second;
-        if (vertex.find(vertice) != vertex.end()) {
-            cost += weight;
-        }
-    }
-    return cost;
-}
-
-int biggest_value_index(std::vector<double>& partitions_score) {
-    auto index = 0;
-    auto biggest = partitions_score[0];
-    for (auto i = 1; i < partitions_score.size(); i++) {
-        if (partitions_score[i] > biggest) {
-            biggest = partitions_score[i];
-            index = i;
-        }
-    }
-    return index;
-}
-
-int fennel_vertice_partition(
-    Graph& graph, int vertice, std::vector<workload::Partition>& partitions,
-    int max_partition_size, double alpha, double gamma
-) {
-    double biggest_score = -DBL_MAX;
-    auto id = 0;
-    auto designated_partition = 0;
-    for (auto& partition : partitions) {
-        auto partition_weight = partition.weight();
-        if (max_partition_size > 0) {
-            if (partition_weight + graph.vertice_weight(vertice) > max_partition_size) {
-                id++;
-                continue;
-            }
-        }
-
-        auto& edges = graph.vertice_edges(vertice);
-
-        auto inter_cost = fennel_inter_cost(edges, partition);
-        auto intra_cost =
-            (std::pow(partition.weight() + graph.vertice_weight(vertice), gamma));
-        intra_cost -= std::pow(partition.weight(), gamma);
-        intra_cost *= alpha;
-        auto score = inter_cost - intra_cost;
-
-        if (score > biggest_score) {
-            biggest_score = score;
-            designated_partition = id;
-        }
-        id++;
-    }
-
-    return designated_partition;
 }
 
 workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions) {
