@@ -13,12 +13,11 @@ namespace workload{
 class PartitionScheme {
 public:
     PartitionScheme() = default;
-
+    PartitionScheme(int n_partitions, const std::vector<int>& values);
     PartitionScheme(
         int n_partitions,
         std::vector<int>& data_partitions
     );
-
     PartitionScheme(
         std::vector<Partition>& partitions
     );
@@ -36,7 +35,8 @@ public:
     int n_partitions();
 
 private:
-    std::unordered_map<int, int> data_partitions_;
+    int round_robin_counter_;
+    std::unordered_map<int, int> data_to_partition_;
     std::vector<Partition> partitions_;
 };
 
