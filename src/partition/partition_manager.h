@@ -10,15 +10,15 @@
 
 namespace workload{
 
-class PartitionScheme {
+class PartitionManager {
 public:
-    PartitionScheme() = default;
-    PartitionScheme(int n_partitions, const std::vector<int>& values);
-    PartitionScheme(
+    PartitionManager() = default;
+    PartitionManager(int n_partitions, const std::vector<int>& values);
+    PartitionManager(
         int n_partitions,
         std::vector<int>& data_partitions
     );
-    PartitionScheme(
+    PartitionManager(
         std::vector<Partition>& partitions
     );
 

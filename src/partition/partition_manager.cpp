@@ -1,8 +1,8 @@
-#include "partition_scheme.h"
+#include "partition_manager.h"
 
 namespace workload {
 
-PartitionScheme::PartitionScheme(
+PartitionManager::PartitionManager(
     int n_partitions,
     const std::vector<int>& values
 ) : round_robin_counter_{0} {
@@ -14,14 +14,14 @@ PartitionScheme::PartitionScheme(
     }
 }
 
-PartitionScheme::PartitionScheme(
+PartitionManager::PartitionManager(
     std::vector<Partition>& partitions
 ) : partitions_{partitions}
 {
     update_partitions(partitions);
 }
 
-PartitionScheme::PartitionScheme(
+PartitionManager::PartitionManager(
     int n_partitions, std::vector<int>& data_partitions
 ) {
     for (auto i = 0; i < n_partitions; i++) {
@@ -38,7 +38,7 @@ PartitionScheme::PartitionScheme(
     }
 }
 
-void PartitionScheme::update_partitions(std::vector<Partition>& partitions) {
+void PartitionManager::update_partitions(std::vector<Partition>& partitions) {
     partitions_ = partitions;
 
     for (auto i = 0; i < partitions.size(); i++) {
@@ -48,45 +48,45 @@ void PartitionScheme::update_partitions(std::vector<Partition>& partitions) {
     }
 }
 
-void PartitionScheme::add_value(int value, int partition, int n_accesses) {
+void PartitionManager::add_value(int value, int partition, int n_accesses) {
     partitions_[partition].insert(value, n_accesses);
     value_to_partition_[value] = partition;
 }
 
-void PartitionScheme::increase_partition_weight(
+void PartitionManager::increase_partition_weight(
     int partition_id, int weight/*=1*/
 ) {
     auto partition = value_to_partition_.at(partition_id);
 }
 
-void PartitionScheme::remove_value(int value) {
+void PartitionManager::remove_value(int value) {
     auto values_partition = value_to_partition_.at(value);
     partitions_.at(values_partition).remove(value);
     value_to_partition_.erase(value);
 }
 
-bool PartitionScheme::in_scheme(int value) const {
+bool PartitionManager::in_scheme(int value) const {
     return value_to_partition_.find(value) != value_to_partition_.end();
 }
 
-int PartitionScheme::n_partitions() const {
+int PartitionManager::n_partitions() const {
     return partitions_.size();
 }
 
-int PartitionScheme::value_to_partition(int value) const {
+int PartitionManager::value_to_partition(int value) const {
     return value_to_partition_.at(value);
 }
 
-const std::vector<Partition>& PartitionScheme::partitions() const {
+const std::vector<Partition>& PartitionManager::partitions() const {
     return partitions_;
 }
 
 const std::unordered_map<int, int>&
-PartitionScheme::value_to_partition_map() const {
+PartitionManager::value_to_partition_map() const {
     return value_to_partition_;
 }
 
-model::Graph PartitionScheme::graph_representation() const {
+model::Graph PartitionManager::graph_representation() const {
     auto graph = model::Graph();
 
     for(auto value = 0; value < value_to_partition_.size(); value++) {

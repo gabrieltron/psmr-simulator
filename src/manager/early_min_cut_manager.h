@@ -10,7 +10,6 @@
 #include "graph/graph.h"
 #include "partition/min_cut.h"
 #include "manager.h"
-#include "partition/partition_scheme.h"
 #include "request/random.h"
 
 namespace workload {

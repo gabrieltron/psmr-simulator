@@ -8,7 +8,7 @@ MinCutManager::MinCutManager(
     int repartition_interval,
     std::vector<int> data_partition)
     :   Manager{n_variables},
-        partition_scheme_{PartitionScheme(n_partitions, data_partition)}
+        partition_manager_{PartitionManager(n_partitions, data_partition)}
 {}
 
 // Distribute data in partitions with round-robin
@@ -24,11 +24,11 @@ MinCutManager::MinCutManager(
         data_partition.push_back(round_robin_counter_);
         round_robin_counter_ = (round_robin_counter_+1) % n_partitions;
     }
-    partition_scheme_ = PartitionScheme(n_partitions, data_partition);
+    partition_manager_ = PartitionManager(n_partitions, data_partition);
 }
 
 ExecutionLog MinCutManager::execute_requests() {
-    auto log = ExecutionLog(partition_scheme_.n_partitions());
+    auto log = ExecutionLog(partition_manager_.n_partitions());
 
     while (!requests_.empty()) {
         auto request = requests_.front();
@@ -36,16 +36,16 @@ ExecutionLog MinCutManager::execute_requests() {
 
         auto involved_partitions = std::unordered_set<int>();
         for (auto data : request) {
-    	    if (not partition_scheme_.in_scheme(data)) {
-                partition_scheme_.add_value(data, round_robin_counter_, 0);
+    	    if (not partition_manager_.in_scheme(data)) {
+                partition_manager_.add_value(data, round_robin_counter_, 0);
                 round_robin_counter_ =
-                    (round_robin_counter_+1) % partition_scheme_.n_partitions();
+                    (round_robin_counter_+1) % partition_manager_.n_partitions();
             }
-            partition_scheme_.increase_partition_weight(data);
-            auto partition_id = partition_scheme_.value_to_partition(data);
+            partition_manager_.increase_partition_weight(data);
+            auto partition_id = partition_manager_.value_to_partition(data);
 
             involved_partitions.insert(
-                partition_scheme_.value_to_partition(partition_id)
+                partition_manager_.value_to_partition(partition_id)
             );
         }
 
@@ -60,10 +60,10 @@ ExecutionLog MinCutManager::execute_requests() {
         if (repartition_interval_ != 0 and
             log.processed_requests() % repartition_interval_ == 0
         ) {
-            repartition_data(partition_scheme_.n_partitions());
+            repartition_data(partition_manager_.n_partitions());
 
             auto involved_partitions = std::unordered_set<int>();
-            for (auto i = 0; i < partition_scheme_.n_partitions(); i++) {
+            for (auto i = 0; i < partition_manager_.n_partitions(); i++) {
                 involved_partitions.insert(i);
             }
             log.sync_partitions(involved_partitions);
@@ -74,14 +74,14 @@ ExecutionLog MinCutManager::execute_requests() {
 }
 
 void MinCutManager::export_data(std::string output_path) {
-    auto data_partitions = partition_scheme_.value_to_partition_map();
+    auto data_partitions = partition_manager_.value_to_partition_map();
     std::ofstream output_stream(output_path, std::ofstream::out);
     output::write_data_partitions(data_partitions, output_stream);
     output_stream.close();
 }
 
-PartitionScheme MinCutManager::partiton_scheme() {
-    return partition_scheme_;
+PartitionManager MinCutManager::partition_manager() {
+    return partition_manager_;
 }
 
 }

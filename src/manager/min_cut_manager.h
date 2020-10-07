@@ -10,7 +10,7 @@
 #include "graph/graph.h"
 #include "partition/min_cut.h"
 #include "manager.h"
-#include "partition/partition_scheme.h"
+#include "partition/partition_manager.h"
 #include "request/random.h"
 
 namespace workload {
@@ -32,7 +32,7 @@ public:
     ExecutionLog execute_requests();
     virtual void repartition_data(int n_partitions) = 0;
 
-    PartitionScheme partiton_scheme();
+    PartitionManager partition_manager();
     void export_data(std::string output_path);
 
 protected:
@@ -40,7 +40,7 @@ protected:
 
     int round_robin_counter_ = 0;
     int repartition_interval_;
-    PartitionScheme partition_scheme_;
+    PartitionManager partition_manager_;
 };
 
 }

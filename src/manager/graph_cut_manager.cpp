@@ -32,17 +32,17 @@ GraphCutManager::GraphCutManager(
 
 void GraphCutManager::repartition_data(int n_partitions) {
     if (cut_method_ == model::FENNEL) {
-        partition_scheme_ = std::move(
-            model::fennel_cut(access_graph_, partition_scheme_.n_partitions())
+        partition_manager_ = std::move(
+            model::fennel_cut(access_graph_, partition_manager_.n_partitions())
         );
     } else if (cut_method_ == model::REFENNEL) {
-        partition_scheme_ = std::move(
-            model::refennel_cut(access_graph_, partition_scheme_)
+        partition_manager_ = std::move(
+            model::refennel_cut(access_graph_, partition_manager_)
         );
     } else {
-        partition_scheme_ = std::move(
+        partition_manager_ = std::move(
             model::multilevel_cut(
-                access_graph_, partition_scheme_.n_partitions(), cut_method_
+                access_graph_, partition_manager_.n_partitions(), cut_method_
             )
         );
     }
@@ -50,7 +50,7 @@ void GraphCutManager::repartition_data(int n_partitions) {
 
 void GraphCutManager::export_data(std::string output_path) {
     std::ofstream output_stream(output_path, std::ofstream::out);
-    auto partitions_graph = partition_scheme_.graph_representation();
+    auto partitions_graph = partition_manager_.graph_representation();
     output::write_graph(partitions_graph, output::DOT, output_stream);
     output_stream.close();
 }

@@ -61,7 +61,7 @@ void write_dot_format(model::Graph& graph, std::ostream& output_stream) {
 
 void write_cut_info(
     model::Graph& graph,
-    workload::PartitionScheme& partition_scheme,
+    workload::PartitionManager& partition_scheme,
     std::ostream& output_stream
 ) {
     output_stream << "Partição | Peso Vértices | Vértices\n";

@@ -9,7 +9,7 @@
 #include "log/execution_log.h"
 #include "graph/graph.h"
 #include "partition/min_cut.h"
-#include "partition/partition_scheme.h"
+#include "partition/partition_manager.h"
 #include "graph/spanning_tree.h"
 
 namespace output {
@@ -27,7 +27,7 @@ void write_metis_format(model::Graph& graph, std::ostream& output_stream);
 void write_dot_format(model::Graph& graph, std::ostream& output_stream);
 void write_cut_info(
     model::Graph& graph,
-    workload::PartitionScheme& partition_scheme,
+    workload::PartitionManager& partition_scheme,
     std::ostream& output_stream
 );
 void write_log_info(

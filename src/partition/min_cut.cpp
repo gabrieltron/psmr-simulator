@@ -5,7 +5,7 @@ namespace model {
 // Used by refennel to call refennel if it's the first time it partitions
 bool first_repartition = true;
 
-workload::PartitionScheme multilevel_cut(
+workload::PartitionManager multilevel_cut(
     Graph& graph, idx_t n_partitions, CutMethod cut_method
 ) {
     auto& vertex = graph.vertex();
@@ -73,7 +73,7 @@ workload::PartitionScheme multilevel_cut(
         partitions[vertice_partition].insert(vertice, vertice_weight);
     }
 
-    return workload::PartitionScheme(partitions);
+    return workload::PartitionManager(partitions);
 }
 
 int fennel_inter_cost(
@@ -139,7 +139,7 @@ int fennel_vertice_partition(
     return designated_partition;
 }
 
-workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
+workload::PartitionManager fennel_cut(Graph& graph, int n_partitions) {
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions; i++) {
         auto partition = workload::Partition();
@@ -168,11 +168,11 @@ workload::PartitionScheme fennel_cut(Graph& graph, int n_partitions) {
         partitions[partition].insert(vertice, graph.vertice_weight(vertice));
     }
 
-    return workload::PartitionScheme(partitions);
+    return workload::PartitionManager(partitions);
 }
 
-workload::PartitionScheme refennel_cut(
-    Graph& graph, workload::PartitionScheme& partition_scheme
+workload::PartitionManager refennel_cut(
+    Graph& graph, workload::PartitionManager& partition_scheme
 ) {
     if (first_repartition) {
         first_repartition = false;
@@ -206,7 +206,7 @@ workload::PartitionScheme refennel_cut(
 
 }
 
-workload::PartitionScheme spanning_tree_cut(SpanningTree tree, int n_partitions) {
+workload::PartitionManager spanning_tree_cut(SpanningTree tree, int n_partitions) {
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions-1; i++) {
         auto partition = workload::Partition();

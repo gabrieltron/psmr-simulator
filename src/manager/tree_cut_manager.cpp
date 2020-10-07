@@ -34,7 +34,7 @@ void TreeCutManager::repartition_data(int n_partitions) {
     auto data_partitions = model::spanning_tree_cut(
         access_tree_, n_partitions
     );
-    partition_scheme_ = std::move(data_partitions);
+    partition_manager_ = std::move(data_partitions);
 }
 
 void TreeCutManager::update_access_structure(const Request& request) {
@@ -62,7 +62,7 @@ const model::SpanningTree& TreeCutManager::access_tree() {
 }
 
 void TreeCutManager::export_data(std::string output_path) {
-    auto data_partitions = partition_scheme_.value_to_partition_map();
+    auto data_partitions = partition_manager_.value_to_partition_map();
     std::ofstream output_stream(output_path, std::ofstream::out);
     output::write_data_partitions(data_partitions, output_stream);
     output_stream << "\n\n";

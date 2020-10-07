@@ -11,7 +11,6 @@
 #include "log/execution_log.h"
 #include "graph/graph.h"
 #include "manager.h"
-#include "partition/partition_scheme.h"
 #include "request/random.h"
 
 

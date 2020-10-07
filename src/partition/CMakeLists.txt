@@ -5,11 +5,11 @@ target_sources(
         PUBLIC
             min_cut.h
             partition.h
-            partition_scheme.h
+            partition_manager.h
         PRIVATE
             min_cut.cpp
             partition.cpp
-            partition_scheme.cpp
+            partition_manager.cpp
 )
 
 target_include_directories(
