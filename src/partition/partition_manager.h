@@ -23,6 +23,7 @@ public:
     );
 
     void add_value(int value, int partition, int n_accesses);
+    void register_access(const std::unordered_set<int>& involved_values);
     void increase_partition_weight(int partition_id, int weight=1);
     void remove_value(int value);
     void update_partitions(std::vector<Partition>& partitions);
@@ -36,6 +37,9 @@ public:
 
 private:
     int round_robin_counter_;
+
+    void update_graph(const std::unordered_set<int>& involved_values);
+    void update_partition(const std::unordered_set<int>& involved_values);
 
     model::Graph access_graph_;
     std::unordered_map<int, int> value_to_partition_;

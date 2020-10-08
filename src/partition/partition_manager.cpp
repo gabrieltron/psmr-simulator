@@ -53,6 +53,44 @@ void PartitionManager::add_value(int value, int partition, int n_accesses) {
     value_to_partition_[value] = partition;
 }
 
+void PartitionManager::register_access(
+    const std::unordered_set<int>& involved_values
+) {
+    update_graph(involved_values);
+    update_partition(involved_values);
+}
+
+void PartitionManager::update_graph(
+    const std::unordered_set<int>& involved_values
+) {
+    auto auxiliary_set = involved_values;
+    for (auto value: involved_values) {
+        auxiliary_set.erase(value);
+        access_graph_.increase_vertice_weight(value);
+
+        for (auto joint_accessed_value: auxiliary_set) {
+            if (!access_graph_.are_connected(value, joint_accessed_value)) {
+                access_graph_.add_edge(value, joint_accessed_value);
+            }
+            if (!access_graph_.are_connected(joint_accessed_value, value)) {
+                access_graph_.add_edge(value, joint_accessed_value);
+            }
+
+            access_graph_.increase_edge_weight(value, joint_accessed_value);
+            access_graph_.increase_edge_weight(joint_accessed_value, value);
+        }
+    }
+}
+
+void PartitionManager::update_partition(
+    const std::unordered_set<int>& involved_values
+) {
+    for (auto value: involved_values) {
+        auto partition_id = value_to_partition_.at(value);
+        partitions_.at(partition_id).increase_weight(value, 1);
+    }
+}
+
 void PartitionManager::increase_partition_weight(
     int partition_id, int weight/*=1*/
 ) {
