@@ -36,9 +36,9 @@ public:
     void export_data(std::string output_path);
 
 protected:
+    std::unordered_set<int> get_involved_partitions(const Request& request);
     virtual void update_access_structure(const Request& request) = 0;
 
-    int round_robin_counter_ = 0;
     int repartition_interval_;
     PartitionManager partition_manager_;
 };

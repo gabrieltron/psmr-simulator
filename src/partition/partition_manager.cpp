@@ -9,8 +9,7 @@ PartitionManager::PartitionManager(
 
     partitions_ = std::vector<Partition>(n_partitions);
     for (const auto& value: values) {
-        partitions_.at(round_robin_counter_).insert(value);
-        round_robin_counter_ = (round_robin_counter_+1) % n_partitions;
+        allocate_value(value);
     }
 }
 
@@ -21,23 +20,6 @@ PartitionManager::PartitionManager(
     update_partitions(partitions);
 }
 
-PartitionManager::PartitionManager(
-    int n_partitions, std::vector<int>& data_partitions
-) {
-    for (auto i = 0; i < n_partitions; i++) {
-        auto partition = Partition();
-        partitions_.push_back(partition);
-    }
-
-    for (auto i = 0; i < data_partitions.size(); i++) {
-        auto data = i;
-        auto data_partition = data_partitions[i];
-
-        partitions_[data_partition].insert(data, 0);
-        value_to_partition_[data] = data_partition;
-    }
-}
-
 void PartitionManager::update_partitions(std::vector<Partition>& partitions) {
     partitions_ = partitions;
 
@@ -46,6 +28,18 @@ void PartitionManager::update_partitions(std::vector<Partition>& partitions) {
             value_to_partition_[vertice] = i;
         }
     }
+}
+
+int PartitionManager::allocate_value(int value) {
+    if (value_to_partition_.find(value) != value_to_partition_.end()) {
+        return value_to_partition_.at(value);
+    }
+
+    auto partition_id = round_robin_counter_;
+    round_robin_counter_ = (round_robin_counter_ + 1) % partitions_.size();
+    partitions_.at(partition_id).insert(value);
+
+    return partition_id;
 }
 
 void PartitionManager::add_value(int value, int partition, int n_accesses) {

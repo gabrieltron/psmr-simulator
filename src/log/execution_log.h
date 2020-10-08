@@ -13,6 +13,7 @@ public:
 
     void increase_elapsed_time(int thread_id);
     void execute_request(int thread_id);
+    void sync_all_partitions();
     void sync_partitions(const std::unordered_set<int>& thread_ids);
     void skip_time(int thread, int value);
     void increase_sync_counter();

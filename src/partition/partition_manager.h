@@ -15,13 +15,10 @@ public:
     PartitionManager() = default;
     PartitionManager(int n_partitions, const std::vector<int>& values);
     PartitionManager(
-        int n_partitions,
-        std::vector<int>& data_partitions
-    );
-    PartitionManager(
         std::vector<Partition>& partitions
     );
 
+    int allocate_value(int value);
     void add_value(int value, int partition, int n_accesses);
     void register_access(const std::unordered_set<int>& involved_values);
     void increase_partition_weight(int partition_id, int weight=1);

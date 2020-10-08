@@ -18,6 +18,14 @@ void ExecutionLog::execute_request(int thread_id) {
     increase_elapsed_time(thread_id);
 }
 
+void ExecutionLog::sync_all_partitions() {
+    std::unordered_set<int> involved_threads;
+    for (auto i = 0; i < simulated_threads_.size(); i++) {
+        involved_threads.insert(i);
+    }
+    sync_partitions(involved_threads);
+}
+
 void ExecutionLog::sync_partitions(
     const std::unordered_set<int>& thread_ids
 ) {
