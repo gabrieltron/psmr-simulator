@@ -24,11 +24,14 @@ typedef std::priority_queue<
 
 class CBaseManager : public Manager {
 public:
+    CBaseManager() = default;
     CBaseManager(int n_variables, int n_threads);
 
     ExecutionLog execute_requests();
     model::Graph generate_dependency_graph();
     void export_data(std::string output_path);
+
+    void set_n_threads(int n_threads);
 
 private:
     Heap initialize_threads_heap();

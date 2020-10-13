@@ -11,7 +11,6 @@ MinCutManager::MinCutManager(
         partition_manager_{PartitionManager(n_partitions, data_partition)}
 {}
 
-// Distribute data in partitions with round-robin
 MinCutManager::MinCutManager(
     int n_variables,
     int n_partitions,
@@ -19,6 +18,10 @@ MinCutManager::MinCutManager(
     :   Manager{n_variables},
         repartition_interval_{repartition_interval}
 {
+    initialize_partitions(n_partitions);
+}
+
+void MinCutManager::initialize_partitions(int n_partitions) {
     std::vector<int> values;
     for (auto i = 0; i < n_variables_; i++) {
         values.push_back(i);
@@ -77,6 +80,10 @@ void MinCutManager::export_data(std::string output_path) {
     std::ofstream output_stream(output_path, std::ofstream::out);
     output::write_data_partitions(data_partitions, output_stream);
     output_stream.close();
+}
+
+void MinCutManager::set_repartition_interval(int repartition_interval) {
+    repartition_interval_ = repartition_interval;
 }
 
 PartitionManager MinCutManager::partition_manager() {

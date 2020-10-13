@@ -33,7 +33,7 @@ public:
     model::Graph graph_representation() const;
 
 private:
-    int round_robin_counter_;
+    int round_robin_counter_{0};
 
     void update_graph(const std::unordered_set<int>& involved_values);
     void update_partition(const std::unordered_set<int>& involved_values);

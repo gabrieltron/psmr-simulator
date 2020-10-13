@@ -103,6 +103,10 @@ model::Graph CBaseManager::generate_dependency_graph() {
     return dependency_graph;
 }
 
+void CBaseManager::set_n_threads(int n_threads) {
+    n_threads_ = n_threads;
+}
+
 void CBaseManager::export_data(std::string output_path) {
     if (true){
 

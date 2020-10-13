@@ -11,6 +11,7 @@ namespace workload {
 
 class TreeCutManager : public MinCutManager {
 public:
+    TreeCutManager() = default;
     TreeCutManager(
         int n_variables,
         int n_partitions,
@@ -23,6 +24,7 @@ public:
         int repartition_interval
     );
 
+    void initialize_tree();
     const model::SpanningTree& access_tree();
     void repartition_data(int n_partitions);
     void export_data(std::string output_path);

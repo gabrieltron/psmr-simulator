@@ -30,6 +30,14 @@ GraphCutManager::GraphCutManager(
         cut_method_{cut_method}
 {}
 
+void GraphCutManager::initialize_graph() {
+    access_graph_ = model::Graph(n_variables_);
+}
+
+void GraphCutManager::set_cut_method(model::CutMethod cut_method) {
+    cut_method_ = cut_method;
+}
+
 void GraphCutManager::repartition_data(int n_partitions) {
     if (cut_method_ == model::FENNEL) {
         partition_manager_ = std::move(
@@ -75,7 +83,6 @@ void GraphCutManager::update_access_structure(const Request& request) {
         }
     }
 }
-
 
 model::Graph GraphCutManager::access_graph() {
     return access_graph_;

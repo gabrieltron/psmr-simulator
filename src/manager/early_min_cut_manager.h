@@ -16,6 +16,7 @@ namespace workload {
 
 class EarlyMinCutManager : public Manager {
 public:
+    EarlyMinCutManager() = default;
     EarlyMinCutManager(
         int n_variables,
         int n_partitions,
@@ -26,6 +27,9 @@ public:
     void update_graph(
         model::Graph& graph, const Request& request
     ) const;
+
+    void set_repartition_window(int repartition_window);
+    void set_n_partitions(int n_partitions);
 
     void export_data(std::string output_path);
 

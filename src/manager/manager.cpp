@@ -39,6 +39,11 @@ void Manager::set_requests(const std::vector<Request>& requests) {
     }
 }
 
+void Manager::set_n_variables(int n_variables) {
+    n_variables_ = n_variables;
+}
+
+
 int Manager::n_variables() {
     return n_variables_;
 }

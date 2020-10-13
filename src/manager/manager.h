@@ -13,6 +13,7 @@ namespace workload {
 
 class Manager {
 public:
+    Manager() = default;
     Manager(int n_variables);
 
     virtual ExecutionLog execute_requests() = 0;
@@ -24,6 +25,7 @@ public:
     void import_requests(std::string input_path);
 
     int n_variables();
+    void set_n_variables(int n_variables);
 
 protected:
     int n_variables_{0};

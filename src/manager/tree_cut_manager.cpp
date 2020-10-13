@@ -57,6 +57,10 @@ void TreeCutManager::update_access_structure(const Request& request) {
     }
 }
 
+void TreeCutManager::initialize_tree() {
+    access_tree_ = model::SpanningTree(n_variables_);
+}
+
 const model::SpanningTree& TreeCutManager::access_tree() {
     return access_tree_;
 }

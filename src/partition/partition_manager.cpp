@@ -38,6 +38,7 @@ int PartitionManager::allocate_value(int value) {
     auto partition_id = round_robin_counter_;
     round_robin_counter_ = (round_robin_counter_ + 1) % partitions_.size();
     partitions_.at(partition_id).insert(value);
+    value_to_partition_.insert(std::make_pair(value, partition_id));
 
     return partition_id;
 }
@@ -60,9 +61,15 @@ void PartitionManager::update_graph(
     auto auxiliary_set = involved_values;
     for (auto value: involved_values) {
         auxiliary_set.erase(value);
+        if (not access_graph_.exist_vertice(value)) {
+            access_graph_.add_vertice(value);
+        }
         access_graph_.increase_vertice_weight(value);
 
         for (auto joint_accessed_value: auxiliary_set) {
+            if (not access_graph_.exist_vertice(joint_accessed_value)) {
+                access_graph_.add_vertice(joint_accessed_value);
+            }
             if (!access_graph_.are_connected(value, joint_accessed_value)) {
                 access_graph_.add_edge(value, joint_accessed_value);
             }

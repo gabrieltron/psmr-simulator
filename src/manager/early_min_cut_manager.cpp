@@ -74,6 +74,14 @@ ExecutionLog EarlyMinCutManager::execute_requests() {
     return log;
 }
 
+void EarlyMinCutManager::set_repartition_window(int repartition_window) {
+    repartition_window_ = repartition_window;
+}
+
+void EarlyMinCutManager::set_n_partitions(int n_partitions) {
+    n_partitions_ = n_partitions;
+}
+
 void EarlyMinCutManager::export_data(std::string output_path) {
 
 }

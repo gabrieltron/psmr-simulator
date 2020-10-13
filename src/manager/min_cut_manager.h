@@ -17,6 +17,7 @@ namespace workload {
 
 class MinCutManager : public Manager {
 public:
+    MinCutManager() = default;
     MinCutManager(
         int n_variables,
         int n_partitions,
@@ -29,11 +30,14 @@ public:
         int repartition_interval
     );
 
+    void initialize_partitions(int n_partitions);
     ExecutionLog execute_requests();
     virtual void repartition_data(int n_partitions) = 0;
 
     PartitionManager partition_manager();
     void export_data(std::string output_path);
+
+    void set_repartition_interval(int repartition_interval);
 
 protected:
     std::unordered_set<int> get_involved_partitions(const Request& request);

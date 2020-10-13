@@ -11,6 +11,7 @@ namespace workload {
 
 class GraphCutManager : public MinCutManager {
 public:
+    GraphCutManager() = default;
     GraphCutManager(
         int n_variables,
         int n_partitions,
@@ -26,6 +27,8 @@ public:
     );
 
     model::Graph access_graph();
+    void initialize_graph();
+    void set_cut_method(model::CutMethod cut_method);
     void repartition_data(int n_partitions);
     void export_data(std::string output_path);
 
