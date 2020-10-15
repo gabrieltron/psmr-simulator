@@ -41,7 +41,9 @@ public:
 
 protected:
     std::unordered_set<int> get_involved_partitions(const Request& request);
-    virtual void update_access_structure(const Request& request) = 0;
+    virtual void update_access_structure(const Request& request) {
+        partition_manager_.register_access(request);
+    }
 
     int repartition_interval_;
     PartitionManager partition_manager_;

@@ -1,4 +1,4 @@
-#include "min_cut_manager.h"
+#include "min_cut_manager.hpp"
 
 namespace workload {
 
@@ -45,7 +45,6 @@ ExecutionLog MinCutManager::execute_requests() {
         }
 
         partition_manager_.register_access(request);
-        log.increase_processed_requests();
 
         bool should_repartition = repartition_interval_ != 0 and
             log.processed_requests() % repartition_interval_ == 0;
@@ -67,9 +66,7 @@ std::unordered_set<int> MinCutManager::get_involved_partitions(
             partition_manager_.allocate_value(value);
         }
         auto partition_id = partition_manager_.value_to_partition(value);
-        involved_partitions.insert(
-            partition_manager_.value_to_partition(partition_id)
-        );
+        involved_partitions.insert(partition_id);
     }
     return involved_partitions;
 }

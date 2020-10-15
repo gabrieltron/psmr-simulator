@@ -17,7 +17,6 @@ public:
     void sync_partitions(const std::unordered_set<int>& thread_ids);
     void skip_time(int thread, int value);
     void increase_sync_counter();
-    void increase_processed_requests();
     int max_elapsed_time(const std::unordered_set<int>& thread_ids) const;
 
     int makespan() const;
@@ -26,7 +25,7 @@ public:
     int processed_requests() const;
     int elapsed_time(int thread_id) const;
     int idle_time() const;
-    std::unordered_map<int, int> idle_time_per_partition() const;
+    std::unordered_map<int, int> idle_time_per_thread() const;
     std::unordered_map<int, int> requests_per_thread() const;
     const std::unordered_map<int, int> execution_time() const;
     const std::unordered_map<int, int>& crossborder_requests() const;

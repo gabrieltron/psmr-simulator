@@ -12,7 +12,7 @@
 #include "manager/cbase_manager.h"
 #include "manager/early_min_cut_manager.h"
 #include "manager/graph_cut_manager.h"
-#include "manager/min_cut_manager.h"
+#include "manager/min_cut_manager.hpp"
 #include "manager/tree_cut_manager.h"
 #include "log/execution_log.h"
 #include "partition/min_cut.h"
@@ -284,7 +284,6 @@ void set_graph_cut_configuration(
     );
     const auto cut_method = model::string_to_cut_method.at(cut_method_name);
     manager.set_cut_method(cut_method);
-    manager.initialize_graph();
 }
 
 void set_tree_cut_configuration(

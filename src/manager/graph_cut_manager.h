@@ -5,7 +5,7 @@
 
 #include "graph/graph.h"
 #include "partition/min_cut.h"
-#include "min_cut_manager.h"
+#include "min_cut_manager.hpp"
 
 namespace workload {
 
@@ -26,16 +26,11 @@ public:
         model::CutMethod cut_method
     );
 
-    model::Graph access_graph();
-    void initialize_graph();
     void set_cut_method(model::CutMethod cut_method);
     void repartition_data(int n_partitions);
     void export_data(std::string output_path);
 
 private:
-    void update_access_structure(const Request& request);
-
-    model::Graph access_graph_;
     model::CutMethod cut_method_;
 
 };

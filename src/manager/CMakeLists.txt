@@ -7,7 +7,7 @@ target_sources(
             cbase_manager.h
             early_min_cut_manager.h
             graph_cut_manager.h
-            min_cut_manager.h
+            min_cut_manager.hpp
             tree_cut_manager.h
         PRIVATE
             manager.cpp

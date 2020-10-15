@@ -12,7 +12,6 @@ GraphCutManager::GraphCutManager(
             n_variables, n_partitions,
             repartition_interval, data_partition
         },
-        access_graph_{model::Graph(n_variables)},
         cut_method_{cut_method}
 {}
 
@@ -26,13 +25,8 @@ GraphCutManager::GraphCutManager(
             n_variables, n_partitions,
             repartition_interval
         },
-        access_graph_{model::Graph(n_variables)},
         cut_method_{cut_method}
 {}
-
-void GraphCutManager::initialize_graph() {
-    access_graph_ = model::Graph(n_variables_);
-}
 
 void GraphCutManager::set_cut_method(model::CutMethod cut_method) {
     cut_method_ = cut_method;
@@ -40,17 +34,22 @@ void GraphCutManager::set_cut_method(model::CutMethod cut_method) {
 
 void GraphCutManager::repartition_data(int n_partitions) {
     if (cut_method_ == model::FENNEL) {
-        partition_manager_ = std::move(
-            model::fennel_cut(access_graph_, partition_manager_.n_partitions())
+        partition_manager_.update_partitions(
+            model::fennel_cut(
+                partition_manager_.access_graph(),
+                partition_manager_.n_partitions()
+            )
         );
     } else if (cut_method_ == model::REFENNEL) {
-        partition_manager_ = std::move(
-            model::refennel_cut(access_graph_, partition_manager_)
+        partition_manager_.update_partitions(
+            model::refennel_cut(partition_manager_)
         );
     } else {
-        partition_manager_ = std::move(
+        partition_manager_.update_partitions(
             model::multilevel_cut(
-                access_graph_, partition_manager_.n_partitions(), cut_method_
+                partition_manager_.access_graph(),
+                partition_manager_.n_partitions(),
+                cut_method_
             )
         );
     }
@@ -61,31 +60,6 @@ void GraphCutManager::export_data(std::string output_path) {
     auto partitions_graph = partition_manager_.graph_representation();
     output::write_graph(partitions_graph, output::DOT, output_stream);
     output_stream.close();
-}
-
-void GraphCutManager::update_access_structure(const Request& request) {
-    for (auto first_data : request) {
-        if (not access_graph_.exist_vertice(first_data)) {
-            access_graph_.add_vertice(first_data);
-        }
-        access_graph_.increase_vertice_weight(first_data);
-        for (auto second_data : request) {
-            if (first_data == second_data) {
-                continue;
-            }
-
-            if (!access_graph_.are_connected(first_data, second_data)) {
-                access_graph_.add_edge(first_data, second_data);
-                access_graph_.add_edge(second_data, first_data);
-            }
-
-            access_graph_.increase_edge_weight(first_data, second_data);
-        }
-    }
-}
-
-model::Graph GraphCutManager::access_graph() {
-    return access_graph_;
 }
 
 }

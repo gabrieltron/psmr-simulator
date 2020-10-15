@@ -5,7 +5,7 @@
 
 #include "partition/min_cut.h"
 #include "graph/spanning_tree.h"
-#include "min_cut_manager.h"
+#include "min_cut_manager.hpp"
 
 namespace workload {
 

@@ -5,12 +5,11 @@ namespace model {
 // Used by refennel to call refennel if it's the first time it partitions
 bool first_repartition = true;
 
-workload::PartitionManager multilevel_cut(
-    Graph& graph, idx_t n_partitions, CutMethod cut_method
+std::vector<workload::Partition> multilevel_cut(
+    const model::Graph& graph, idx_t n_partitions, CutMethod cut_method
 ) {
-    auto& vertex = graph.vertex();
+    const auto& vertex = graph.vertex();
     idx_t n_vertice = vertex.size();
-    idx_t n_edges = n_vertice * (n_vertice - 1);
     idx_t n_constrains = 1;
 
     auto vertice_weight = std::vector<idx_t>();
@@ -28,7 +27,7 @@ workload::PartitionManager multilevel_cut(
         auto n_neighbours = graph.vertice_edges(vertice).size();
         x_edges.push_back(last_edge_index + n_neighbours);
 
-        for (auto& vk: graph.vertice_edges(vertice)) {
+        for (const auto& vk: graph.vertice_edges(vertice)) {
             auto neighbour = vk.first;
             auto weight = vk.second;
             edges.push_back(neighbour);
@@ -60,27 +59,22 @@ workload::PartitionManager multilevel_cut(
         );
     }
 
-    auto partitions = std::vector<workload::Partition>();
-    for (auto i = 0; i < n_partitions; i++) {
-        auto partition = workload::Partition();
-        partitions.push_back(partition);
-    }
+    std::vector<workload::Partition> partitions(n_partitions, workload::Partition());
     for (auto i = 0; i < vertex_partitions.size(); i++) {
         auto vertice = i;
         auto vertice_partition = vertex_partitions[vertice];
 
-        auto vertice_weight = graph.vertice_weight(vertice);
-        partitions[vertice_partition].insert(vertice, vertice_weight);
+        partitions[vertice_partition].insert(vertice);
     }
 
-    return workload::PartitionManager(partitions);
+    return partitions;
 }
 
 int fennel_inter_cost(
     const std::unordered_map<int, int>& edges,
     const workload::Partition& partition
 ) {
-    auto& vertex = partition.data();
+    const auto& vertex = partition.data();
     auto cost = 0;
     for (auto& kv : edges) {
         auto vertice = kv.first;
@@ -105,13 +99,13 @@ int biggest_value_index(std::vector<double>& partitions_score) {
 }
 
 int fennel_vertice_partition(
-    Graph& graph, int vertice, const std::vector<workload::Partition>& partitions,
+    const Graph& graph, int vertice, const std::vector<workload::Partition>& partitions,
     int max_partition_size, double alpha, double gamma
 ) {
     double biggest_score = -DBL_MAX;
     auto id = 0;
     auto designated_partition = 0;
-    for (auto& partition : partitions) {
+    for (const auto& partition : partitions) {
         auto partition_weight = partition.weight();
         if (max_partition_size > 0) {
             if (partition_weight + graph.vertice_weight(vertice) > max_partition_size) {
@@ -120,7 +114,7 @@ int fennel_vertice_partition(
             }
         }
 
-        auto& edges = graph.vertice_edges(vertice);
+        const auto& edges = graph.vertice_edges(vertice);
 
         auto inter_cost = fennel_inter_cost(edges, partition);
         auto intra_cost =
@@ -139,12 +133,10 @@ int fennel_vertice_partition(
     return designated_partition;
 }
 
-workload::PartitionManager fennel_cut(Graph& graph, int n_partitions) {
-    auto partitions = std::vector<workload::Partition>();
-    for (auto i = 0; i < n_partitions; i++) {
-        auto partition = workload::Partition();
-        partitions.push_back(partition);
-    }
+std::vector<workload::Partition> fennel_cut(
+    const model::Graph& graph, size_t n_partitions
+) {
+    std::vector<workload::Partition> partitions(n_partitions, workload::Partition());
 
     const auto edges_weight = graph.total_edges_weight();
     const auto vertex_weight = graph.total_vertex_weight();
@@ -152,7 +144,7 @@ workload::PartitionManager fennel_cut(Graph& graph, int n_partitions) {
     const auto alpha =
         edges_weight * std::pow(partitions.size(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
     auto partition_max_size = 1.2 * graph.total_vertex_weight() / n_partitions;
-    for (auto& kv: graph.vertex()) {
+    for (const auto& kv: graph.vertex()) {
         auto vertice = kv.first;
         auto partition = fennel_vertice_partition(
             graph, vertice, partitions,
@@ -168,18 +160,23 @@ workload::PartitionManager fennel_cut(Graph& graph, int n_partitions) {
         partitions[partition].insert(vertice, graph.vertice_weight(vertice));
     }
 
-    return workload::PartitionManager(partitions);
+    return partitions;
 }
 
-workload::PartitionManager refennel_cut(
-    Graph& graph, workload::PartitionManager& partition_scheme
+std::vector<workload::Partition> refennel_cut(
+    workload::PartitionManager& partition_scheme
 ) {
     if (first_repartition) {
         first_repartition = false;
-        return fennel_cut(graph, partition_scheme.n_partitions());
+        return fennel_cut(
+            partition_scheme.access_graph(), partition_scheme.n_partitions()
+        );
     }
-    const auto edges_weight = graph.total_edges_weight();
-    const auto vertex_weight = graph.total_vertex_weight();
+    auto n_partitions = partition_scheme.n_partitions();
+    const auto& graph = partition_scheme.access_graph();
+
+    const auto& edges_weight = graph.total_edges_weight();
+    const auto& vertex_weight = graph.total_vertex_weight();
     const auto gamma = 3 / 2.0;
     const auto alpha =
         edges_weight * std::pow(partition_scheme.n_partitions(), (gamma - 1)) / std::pow(graph.total_vertex_weight(), gamma);
@@ -197,16 +194,15 @@ workload::PartitionManager refennel_cut(
                 partition_max_size, alpha, gamma
             );
         }
-        auto old_partition = partition_scheme.value_to_partition(vertice);
         partition_scheme.remove_value(vertice);
         partition_scheme.add_value(vertice, new_partition, graph.vertice_weight(vertice));
     }
 
-    return partition_scheme;
+    return partition_scheme.partitions();
 
 }
 
-workload::PartitionManager spanning_tree_cut(SpanningTree tree, int n_partitions) {
+std::vector<workload::Partition> spanning_tree_cut(SpanningTree tree, int n_partitions) {
     auto partitions = std::vector<workload::Partition>();
     for (auto i = 0; i < n_partitions-1; i++) {
         auto partition = workload::Partition();

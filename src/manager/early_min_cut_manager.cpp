@@ -54,9 +54,12 @@ ExecutionLog EarlyMinCutManager::execute_requests() {
         for (auto& request : batch) {
             auto involved_partitions = std::unordered_set<int>();
             for (auto data : request) {
-                involved_partitions.insert(
-                    partition_scheme.value_to_partition(data)
-                );
+                for (auto i = 0; i < partition_scheme.size(); i++) {
+                    const auto& partition = partition_scheme.at(i);
+                    if (partition.contains(data)) {
+                        involved_partitions.insert(i);
+                    }
+                }
             }
 
             if (involved_partitions.size() == 1) {

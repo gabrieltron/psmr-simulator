@@ -1,6 +1,7 @@
 #ifndef MODEL_PARTITION_SCHEME_H
 #define MODEL_PARTITION_SCHEME_H
 
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -23,13 +24,14 @@ public:
     void register_access(const std::unordered_set<int>& involved_values);
     void increase_partition_weight(int partition_id, int weight=1);
     void remove_value(int value);
-    void update_partitions(std::vector<Partition>& partitions);
+    void update_partitions(const std::vector<Partition>& partitions);
     bool in_scheme(int value) const;
 
     int n_partitions() const;
     int value_to_partition(int value) const;
     const std::vector<Partition>& partitions() const;
     const std::unordered_map<int, int>& value_to_partition_map() const;
+    const model::Graph& access_graph() const;
     model::Graph graph_representation() const;
 
 private:

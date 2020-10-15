@@ -5,11 +5,13 @@ namespace workload {
 PartitionManager::PartitionManager(
     int n_partitions,
     const std::vector<int>& values
-) : round_robin_counter_{0} {
+) : round_robin_counter_{0},
+    access_graph_{model::Graph()} {
 
     partitions_ = std::vector<Partition>(n_partitions);
     for (const auto& value: values) {
         allocate_value(value);
+        access_graph_.add_vertice(value);
     }
 }
 
@@ -20,12 +22,18 @@ PartitionManager::PartitionManager(
     update_partitions(partitions);
 }
 
-void PartitionManager::update_partitions(std::vector<Partition>& partitions) {
-    partitions_ = partitions;
+void PartitionManager::update_partitions(
+    const std::vector<Partition>& partitions
+) {
+    partitions_ = std::vector<Partition>(partitions.size(), Partition());
+    value_to_partition_ = std::unordered_map<int, int>();
 
     for (auto i = 0; i < partitions.size(); i++) {
-        for (auto vertice : partitions[i].data()) {
-            value_to_partition_[vertice] = i;
+        const auto& partition = partitions.at(i);
+        for (auto value: partition.data()) {
+            auto value_weight = access_graph_.vertice_weight(value);
+            partitions_[i].insert(value, value_weight);
+            value_to_partition_.insert(std::make_pair(value, i));
         }
     }
 }
@@ -70,11 +78,11 @@ void PartitionManager::update_graph(
             if (not access_graph_.exist_vertice(joint_accessed_value)) {
                 access_graph_.add_vertice(joint_accessed_value);
             }
-            if (!access_graph_.are_connected(value, joint_accessed_value)) {
+            if (not access_graph_.are_connected(value, joint_accessed_value)) {
                 access_graph_.add_edge(value, joint_accessed_value);
             }
-            if (!access_graph_.are_connected(joint_accessed_value, value)) {
-                access_graph_.add_edge(value, joint_accessed_value);
+            if (not access_graph_.are_connected(joint_accessed_value, value)) {
+                access_graph_.add_edge(joint_accessed_value, value);
             }
 
             access_graph_.increase_edge_weight(value, joint_accessed_value);
@@ -87,6 +95,9 @@ void PartitionManager::update_partition(
     const std::unordered_set<int>& involved_values
 ) {
     for (auto value: involved_values) {
+        if (value_to_partition_.find(value) == value_to_partition_.end()) {
+            allocate_value(value);
+        }
         auto partition_id = value_to_partition_.at(value);
         partitions_.at(partition_id).increase_weight(value, 1);
     }
@@ -123,6 +134,10 @@ const std::vector<Partition>& PartitionManager::partitions() const {
 const std::unordered_map<int, int>&
 PartitionManager::value_to_partition_map() const {
     return value_to_partition_;
+}
+
+const model::Graph& PartitionManager::access_graph() const {
+    return access_graph_;
 }
 
 model::Graph PartitionManager::graph_representation() const {

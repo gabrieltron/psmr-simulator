@@ -97,7 +97,7 @@ void write_log_info(
 
     output_stream << "Execution time | Idle Time | Idle percentage\n";
     auto execution_time = execution_log.execution_time();
-    auto idle_time = execution_log.idle_time_per_partition();
+    auto idle_time = execution_log.idle_time_per_thread();
     for (auto i = 0; i < execution_time.size(); i++) {
         output_stream << i << ": " << execution_time[i] << " | ";
         output_stream << idle_time[i] << " | ";

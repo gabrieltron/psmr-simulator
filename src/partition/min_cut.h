@@ -16,6 +16,7 @@
 
 #include "graph/graph.h"
 #include "graph/spanning_tree.h"
+#include "partition/partition.h"
 #include "partition/partition_manager.h"
 
 namespace model {
@@ -29,14 +30,17 @@ const std::unordered_map<std::string, CutMethod> string_to_cut_method({
 });
 const double MAX_IMBALANCE = 1.03;
 
-workload::PartitionManager multilevel_cut(
-    Graph& graph, int n_partitions, CutMethod cut_method
+std::vector<workload::Partition> multilevel_cut(
+    const model::Graph& graph, idx_t n_partitions, CutMethod cut_method
 );
-workload::PartitionManager fennel_cut(Graph& graph, int n_partitions);
-workload::PartitionManager refennel_cut(
-    Graph& graph, workload::PartitionManager& old_partition
+std::vector<workload::Partition> fennel_cut(
+    const model::Graph& graph, size_t n_partitions
 );
-workload::PartitionManager spanning_tree_cut(SpanningTree tree, int n_partitions);
+std::vector<workload::Partition> refennel_cut(
+    workload::PartitionManager& partition_manager
+);
+
+std::vector<workload::Partition> spanning_tree_cut(SpanningTree tree, int n_partitions);
 
 }
 

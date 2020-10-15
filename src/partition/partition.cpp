@@ -11,6 +11,10 @@ int Partition::weight() const {
     return total_weight_;
 }
 
+bool Partition::contains(int value) const {
+    return data_set_.find(value) != data_set_.end();
+}
+
 void Partition::insert(int data, int weight /*= 0*/) {
     data_set_.insert(data);
     weight_[data] = weight;

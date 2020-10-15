@@ -14,6 +14,7 @@ public:
     void remove(int data);
     void increase_weight(int data, int weight);
     int weight() const;
+    bool contains(int value) const;
     const std::unordered_set<int>& data() const;
 
 private:
