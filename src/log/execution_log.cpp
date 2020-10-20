@@ -9,11 +9,11 @@ ExecutionLog::ExecutionLog(int n_threads) {
     }
 }
 
-void ExecutionLog::increase_elapsed_time(int thread_id) {
-    simulated_threads_[thread_id].elapsed_time_ += 1;
+void ExecutionLog::increase_elapsed_time(int thread_id, int time/*=1*/) {
+    simulated_threads_[thread_id].elapsed_time_ += time;
 }
 
-void ExecutionLog::execute_request(int thread_id) {
+void ExecutionLog::execute_request(int thread_id, int execution_time/*=1*/) {
     simulated_threads_[thread_id].executed_requests_ += 1;
     processed_requests_ += 1;
     increase_elapsed_time(thread_id);

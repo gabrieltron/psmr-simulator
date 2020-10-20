@@ -225,6 +225,11 @@ void set_base_manager_configuration(
         config, "workload", "n_variables"
     );
     manager.set_n_variables(n_variables);
+
+    const auto requests_execution_time = toml::find<int>(
+        config, "execution", "requests_execution_time"
+    );
+    manager.set_requests_execution_time(requests_execution_time);
 }
 
 void set_cbase_manager_configuration(

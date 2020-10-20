@@ -39,7 +39,7 @@ ExecutionLog MinCutManager::execute_requests() {
         auto involved_partitions = get_involved_partitions(request);
 
         auto executing_partition = *involved_partitions.begin();
-        log.execute_request(executing_partition);
+        log.execute_request(executing_partition, requests_execution_time_);
         if (involved_partitions.size() > 1) {
             log.sync_partitions(involved_partitions);
         }

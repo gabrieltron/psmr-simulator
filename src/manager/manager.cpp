@@ -39,6 +39,10 @@ void Manager::set_requests(const std::vector<Request>& requests) {
     }
 }
 
+void Manager::set_requests_execution_time(int requests_execution_time) {
+    requests_execution_time_ = requests_execution_time;
+}
+
 void Manager::set_n_variables(int n_variables) {
     n_variables_ = n_variables;
 }

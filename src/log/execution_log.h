@@ -11,8 +11,8 @@ class ExecutionLog {
 public:
     ExecutionLog(int n_threads);
 
-    void increase_elapsed_time(int thread_id);
-    void execute_request(int thread_id);
+    void increase_elapsed_time(int thread_id, int time=1);
+    void execute_request(int thread_id, int execution_time=1);
     void sync_all_partitions();
     void sync_partitions(const std::unordered_set<int>& thread_ids);
     void skip_time(int thread, int value);

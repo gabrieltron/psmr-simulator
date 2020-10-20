@@ -21,6 +21,7 @@ public:
 
     void add_request(Request request);
     void set_requests(const std::vector<Request>& requests);
+    void set_requests_execution_time(int requests_execution_time);
     void export_requests(std::ostream& output_stream);
     void import_requests(std::string input_path);
 
@@ -29,6 +30,7 @@ public:
 
 protected:
     int n_variables_{0};
+    int requests_execution_time_{1};
     std::deque<Request> requests_;
 };
 
