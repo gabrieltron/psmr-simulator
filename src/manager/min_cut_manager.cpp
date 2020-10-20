@@ -37,12 +37,20 @@ ExecutionLog MinCutManager::execute_requests() {
         requests_.pop_front();
 
         auto involved_partitions = get_involved_partitions(request);
-
-        auto executing_partition = *involved_partitions.begin();
-        log.execute_request(executing_partition, requests_execution_time_);
         if (involved_partitions.size() > 1) {
             log.sync_partitions(involved_partitions);
         }
+        auto executing_partition = *involved_partitions.begin();
+        log.execute_request(executing_partition, requests_execution_time_);
+
+        for (auto partition: involved_partitions) {
+            if (partition == executing_partition) {
+                continue;
+            }
+
+            log.increase_elapsed_time(partition, requests_execution_time_);
+        }
+
 
         partition_manager_.register_access(request);
 
