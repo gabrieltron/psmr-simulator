@@ -16,7 +16,7 @@ void ExecutionLog::increase_elapsed_time(int thread_id, int time/*=1*/) {
 void ExecutionLog::execute_request(int thread_id, int execution_time/*=1*/) {
     simulated_threads_[thread_id].executed_requests_ += 1;
     processed_requests_ += 1;
-    increase_elapsed_time(thread_id);
+    increase_elapsed_time(thread_id, execution_time);
 }
 
 void ExecutionLog::sync_all_partitions() {
