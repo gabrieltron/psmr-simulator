@@ -16,6 +16,9 @@ void ExecutionLog::increase_elapsed_time(int thread_id, int time/*=1*/) {
 void ExecutionLog::execute_request(int thread_id, int execution_time/*=1*/) {
     simulated_threads_[thread_id].executed_requests_ += 1;
     processed_requests_ += 1;
+    for (auto i = 0; i < execution_time; i++) {
+        simulated_threads_[thread_id].executing_on_time_.push_back('1');
+    }
     increase_elapsed_time(thread_id, execution_time);
 }
 
@@ -41,14 +44,30 @@ void ExecutionLog::sync_partitions(
 }
 
 void ExecutionLog::skip_time(int thread_id, int value) {
-    simulated_threads_[thread_id].idle_time_ +=
-        value - simulated_threads_[thread_id].elapsed_time_;
-
+    auto skipped_time = value - simulated_threads_[thread_id].elapsed_time_;
+    for (auto i = 0; i < skipped_time; i++) {
+        simulated_threads_.at(thread_id).executing_on_time_.push_back('\0');
+    }
+    simulated_threads_[thread_id].idle_time_ += skipped_time;
     simulated_threads_[thread_id].elapsed_time_ = value;
 }
 
 void ExecutionLog::increase_sync_counter() {
     sync_counter_++;
+}
+
+int ExecutionLog::partition_with_longest_execution(const std::unordered_set<int>& partitions) const {
+    auto max = -1;
+    auto partition = 0;
+    for (const auto& partition_id: partitions) {
+        const auto& thread = simulated_threads_.at(partition_id);
+        if (thread.elapsed_time_ > max) {
+            max = thread.elapsed_time_;
+            partition = partition_id;
+        }
+    }
+    return partition;
+
 }
 
 int ExecutionLog::max_elapsed_time(

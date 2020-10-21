@@ -31,7 +31,7 @@ void write_cut_info(
     std::ostream& output_stream
 );
 void write_log_info(
-    workload::ExecutionLog& execution_log,
+    const workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 );
 void write_data_partitions(
@@ -40,6 +40,31 @@ void write_data_partitions(
 );
 void write_spanning_tree(
     const model::SpanningTree& tree,
+    std::ostream& output_stream
+);
+
+void write_makespan(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+);
+
+void write_requests_executed_per_partition(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+);
+
+void write_execution_and_idle_time_per_thread(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+);
+
+void write_idle_time(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+);
+
+void write_syncronization_info(
+    const workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 );
 

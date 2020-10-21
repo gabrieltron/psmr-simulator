@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace workload {
 
@@ -17,6 +18,7 @@ public:
     void sync_partitions(const std::unordered_set<int>& thread_ids);
     void skip_time(int thread, int value);
     void increase_sync_counter();
+    int partition_with_longest_execution(const std::unordered_set<int>& partitions) const;
     int max_elapsed_time(const std::unordered_set<int>& thread_ids) const;
 
     int makespan() const;
@@ -40,6 +42,8 @@ private:
         int elapsed_time_ = 0;
         int idle_time_ = 0;
         int executed_requests_ = 0;
+
+        std::vector<char> executing_on_time_;
     };
     std::unordered_map<int, Thread> simulated_threads_;
 };

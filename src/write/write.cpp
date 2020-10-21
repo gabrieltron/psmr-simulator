@@ -78,12 +78,32 @@ void write_cut_info(
 }
 
 void write_log_info(
-    workload::ExecutionLog& execution_log,
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
+    write_makespan(execution_log, output_stream);
+    write_requests_executed_per_partition(execution_log, output_stream);
+
+    output_stream << "\n";
+
+    write_execution_and_idle_time_per_thread(execution_log, output_stream);
+    write_idle_time(execution_log, output_stream);
+    write_syncronization_info(execution_log, output_stream);
+    output_stream << "\n";
+}
+
+void write_makespan(
+    const workload::ExecutionLog& execution_log,
     std::ostream& output_stream
 ) {
     auto makespan = execution_log.makespan();
     output_stream << "Makespan: " << makespan << "\n";
+}
 
+void write_requests_executed_per_partition(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
     auto n_requests = execution_log.processed_requests();
     auto requests_per_partition = execution_log.requests_per_thread();
     output_stream << "Requests executed: " << n_requests << "\n";
@@ -92,10 +112,14 @@ void write_log_info(
 
         output_stream << "Partition " << i << ": " << n_requests << "\n";
     }
+}
 
-    output_stream << "\n";
-
+void write_execution_and_idle_time_per_thread(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
     output_stream << "Execution time | Idle Time | Idle percentage\n";
+    auto makespan = execution_log.makespan();
     auto execution_time = execution_log.execution_time();
     auto idle_time = execution_log.idle_time_per_thread();
     for (auto i = 0; i < execution_time.size(); i++) {
@@ -104,12 +128,22 @@ void write_log_info(
         auto idle_percentage = idle_time[i] / double(makespan) * 100.0;
         output_stream << idle_percentage << "%\n";
     }
+}
 
+void write_idle_time(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
     auto average_idle_time =
         (double) execution_log.idle_time() / execution_log.n_threads();
     output_stream << "Average idle time: " << average_idle_time << "\n";
     output_stream << "\n";
+}
 
+void write_syncronization_info(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
     output_stream << "Required syncs: " << execution_log.n_syncs() << "\n";
     output_stream << "Crossborder requests executed:\n";
     auto& crossborder_requests = execution_log.crossborder_requests();
@@ -117,7 +151,6 @@ void write_log_info(
         output_stream << i << " partitions: ";
         output_stream << crossborder_requests.at(i) << "\n";
     }
-    output_stream << "\n";
 }
 
 void write_data_partitions(
