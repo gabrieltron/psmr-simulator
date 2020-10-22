@@ -60,6 +60,7 @@ ExecutionLog MinCutManager::execute_requests() {
             log.processed_requests() % repartition_interval_ == 0;
         if (should_repartition) {
             repartition_data(partition_manager_.n_partitions());
+            log.register_repartition(partition_manager_);
             log.sync_all_partitions();
         }
     }

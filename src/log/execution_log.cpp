@@ -167,4 +167,59 @@ const std::unordered_map<int, int>& ExecutionLog::crossborder_requests() const {
     return crossborder_requests_;
 }
 
+const std::vector<int>& ExecutionLog::cut_values() const {
+    return cut_values_;
+}
+
+const std::vector<double>& ExecutionLog::unbalance_values() const {
+    return unbalance_values_;
+}
+
+void ExecutionLog::register_repartition(const PartitionManager& partition_manager) {
+    register_cut_value(partition_manager);
+    register_unbalance_value(partition_manager);
+}
+
+void ExecutionLog::register_cut_value(const PartitionManager& partition_manager) {
+    auto cut_value = 0;
+    for (auto kv: partition_manager.value_to_partition_map()) {
+        auto value = kv.first;
+        auto partition = kv.second;
+        const auto& neighbours_and_weight =
+            partition_manager.access_graph().vertice_edges(value);
+        for (auto neighbours_and_weight: neighbours_and_weight) {
+            auto neighbour = neighbours_and_weight.first;
+            auto weight = neighbours_and_weight.second;
+
+            if (partition_manager.value_to_partition(neighbour) != partition) {
+                cut_value += weight;
+            }
+        }
+    }
+
+    cut_values_.push_back(cut_value);
+}
+
+void ExecutionLog::register_unbalance_value(const PartitionManager& partition_manager) {
+    auto total_weight = 0;
+    for (const auto& partition: partition_manager.partitions()) {
+        total_weight += partition.weight();
+    }
+    auto ideal_partition_weight = (double) total_weight / partition_manager.n_partitions();
+
+    auto biggest_unbalance = 0;
+    for (const auto& partition: partition_manager.partitions()) {
+        auto partition_weight = partition.weight();
+        if (abs(partition_weight - ideal_partition_weight) > biggest_unbalance) {
+            biggest_unbalance = partition_weight - ideal_partition_weight;
+        }
+    }
+    auto unbalance_percentage = 100*biggest_unbalance/ideal_partition_weight;
+    if (unbalance_percentage < 0) {
+        unbalance_percentage *= -1;
+    }
+    unbalance_values_.push_back(unbalance_percentage);
+}
+
+
 }

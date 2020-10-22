@@ -6,6 +6,9 @@
 #include <unordered_set>
 #include <vector>
 
+#include "partition/partition_manager.h"
+
+
 namespace workload {
 
 class ExecutionLog {
@@ -20,6 +23,7 @@ public:
     void increase_sync_counter();
     int partition_with_longest_execution(const std::unordered_set<int>& partitions) const;
     int max_elapsed_time(const std::unordered_set<int>& thread_ids) const;
+    void register_repartition(const PartitionManager& partition_manager);
 
     int makespan() const;
     int n_threads() const;
@@ -31,12 +35,19 @@ public:
     std::unordered_map<int, int> requests_per_thread() const;
     const std::unordered_map<int, int> execution_time() const;
     const std::unordered_map<int, int>& crossborder_requests() const;
+    const std::vector<int>& cut_values() const;
+    const std::vector<double>& unbalance_values() const;
     std::vector<std::vector<char>> threads_execution_status_per_time() const;
 
 private:
+    void register_cut_value(const PartitionManager& partition_manager);
+    void register_unbalance_value(const PartitionManager& partition_manager);
+
     int sync_counter_ = 0;
     int processed_requests_ = 0;
     std::unordered_map<int, int> crossborder_requests_;
+    std::vector<int> cut_values_;
+    std::vector<double> unbalance_values_;
 
     struct Thread {
         int requests_exectued_ = 0;

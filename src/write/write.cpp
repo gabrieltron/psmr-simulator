@@ -90,6 +90,10 @@ void write_log_info(
     write_idle_time(execution_log, output_stream);
     write_syncronization_info(execution_log, output_stream);
     output_stream << "\n";
+    if (not execution_log.cut_values().empty()) {
+        write_cut_info(execution_log, output_stream);
+        output_stream << "\n";
+    }
     write_busy_threads_per_time(execution_log, output_stream);
     output_stream << "\n";
 }
@@ -195,6 +199,23 @@ void write_data_partitions(
         output_stream << partition << ", ";
     }
     output_stream << "]";
+}
+
+void write_cut_info(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
+    output_stream << "Cut values: ";
+    for (auto cut_value: execution_log.cut_values()) {
+        output_stream << cut_value << " ";
+    }
+    output_stream << "\n";
+
+    output_stream << "Unbalance values: ";
+    for (auto unbalance_value: execution_log.unbalance_values()) {
+        output_stream << unbalance_value << " ";
+    }
+    output_stream << "\n";
 }
 
 void write_spanning_tree(

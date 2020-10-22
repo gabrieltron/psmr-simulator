@@ -7,3 +7,9 @@ target_sources(
         PRIVATE
             execution_log.cpp
 )
+
+target_link_libraries(
+    log
+        PUBLIC
+            partition
+)
