@@ -67,8 +67,16 @@ int ExecutionLog::partition_with_longest_execution(const std::unordered_set<int>
         }
     }
     return partition;
-
 }
+
+std::vector<std::vector<char>> ExecutionLog::threads_execution_status_per_time() const {
+    std::vector<std::vector<char>> threads_status;
+    for (auto i = 0; i < simulated_threads_.size(); i++) {
+        threads_status.push_back(simulated_threads_.at(i).executing_on_time_);
+    }
+    return threads_status;
+}
+
 
 int ExecutionLog::max_elapsed_time(
     const std::unordered_set<int>& thread_ids

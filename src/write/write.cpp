@@ -90,6 +90,8 @@ void write_log_info(
     write_idle_time(execution_log, output_stream);
     write_syncronization_info(execution_log, output_stream);
     output_stream << "\n";
+    write_busy_threads_per_time(execution_log, output_stream);
+    output_stream << "\n";
 }
 
 void write_makespan(
@@ -151,6 +153,36 @@ void write_syncronization_info(
         output_stream << i << " partitions: ";
         output_stream << crossborder_requests.at(i) << "\n";
     }
+}
+
+void write_busy_threads_per_time(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+) {
+    // Get status
+    auto threads_status_per_time =
+        execution_log.threads_execution_status_per_time();
+
+    // Fill threads that stayed idle until makespan
+    auto makespan = execution_log.makespan();
+    for (auto& thread_status_per_time: threads_status_per_time) {
+        while (thread_status_per_time.size() < makespan) {
+            thread_status_per_time.push_back('\0');
+        }
+    }
+
+    // Calculate how many threads where actually working and write it
+    output_stream << "Busy threads per time: ";
+    for (auto i = 0; i < makespan; i++) {
+        auto busy_threads = 0;
+        for (auto& thread_status_per_time: threads_status_per_time) {
+            if (thread_status_per_time.at(i) == '1') {
+                busy_threads++;
+            }
+        }
+        output_stream << busy_threads << " ";
+    }
+    output_stream << "\n";
 }
 
 void write_data_partitions(

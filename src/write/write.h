@@ -68,6 +68,11 @@ void write_syncronization_info(
     std::ostream& output_stream
 );
 
+void write_busy_threads_per_time(
+    const workload::ExecutionLog& execution_log,
+    std::ostream& output_stream
+);
+
 }
 
 #endif

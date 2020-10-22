@@ -31,6 +31,7 @@ public:
     std::unordered_map<int, int> requests_per_thread() const;
     const std::unordered_map<int, int> execution_time() const;
     const std::unordered_map<int, int>& crossborder_requests() const;
+    std::vector<std::vector<char>> threads_execution_status_per_time() const;
 
 private:
     int sync_counter_ = 0;
